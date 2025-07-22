@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ระบบจองห้อง</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 1rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .success {
+      background-color: #d4edda;
+      padding: 1rem;
+      border-radius: 5px;
+      color: #155724;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>ระบบจองห้อง (ทดลอง)</h2>
+
+  <form id="bookingForm">
+    <label>ชื่อผู้จอง:</label>
+    <input type="text" name="name" required />
+
+    <label>วันที่:</label>
+    <input type="date" name="date" required />
+
+    <label>เวลา:</label>
+    <select name="time" required>
+      <option value="">-- เลือกช่วงเวลา --</option>
+      <option value="09:00-10:00">09:00 - 10:00</option>
+      <option value="10:00-11:00">10:00 - 11:00</option>
+      <option value="13:00-14:00">13:00 - 14:00</option>
+    </select>
+
+    <button type="submit">ส่งคำขอจอง</button>
+  </form>
+
+  <div id="response" style="display: none;" class="success">
+    ✅ บันทึกคำขอเรียบร้อย (แต่ระบบนี้ไม่เก็บข้อมูลจริง)
+  </div>
+
+  <script>
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // แสดงข้อความสำเร็จ
+      document.getElementById('response').style.display = 'block';
+      this.reset();
+    });
+  </script>
+
+</body>
+</html>
