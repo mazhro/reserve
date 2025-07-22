@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: sans-serif;
-      max-width: 700px;
+      max-width: 900px;
       margin: auto;
       padding: 2rem;
     }
@@ -15,21 +15,33 @@
       text-align: center;
       margin-bottom: 1.5rem;
     }
+    .now-section {
+      background-color: #fef9e7;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 6px solid #f39c12;
+    }
+    .now-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .now-detail {
+      font-size: 1.2rem;
+      margin: 0.25rem 0;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.9rem;
     }
     th, td {
-      padding: 0.75rem;
+      padding: 0.5rem;
       border: 1px solid #ccc;
       text-align: center;
     }
     th {
       background-color: #f0f0f0;
-    }
-    .highlight {
-      background-color: #d1f7d1; /* เขียวอ่อน */
-      font-weight: bold;
     }
     .loading {
       text-align: center;
@@ -40,23 +52,37 @@
 </head>
 <body>
 
-  <h2>📅 รายการจองห้อง</h2>
+  <h2>📅 ตารางการจองห้องประชุม</h2>
 
-  <div id="bookingArea">
-    <p class="loading">กำลังโหลดข้อมูล...</p>
-  </div>
+  <div id="bookingNow"></div>
+  <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
 
   <script>
-    // 🔧 Mock ข้อมูล — ภายหลังสามารถแทนที่ด้วยข้อมูลจาก Power Automate
-    const mockData = [
-      { ชื่อ: "สมชาย", วันที่: "2025-07-22", เวลา: "09:00 - 10:00" },
-      { ชื่อ: "อรทัย", วันที่: "2025-07-22", เวลา: "13:00 - 14:00" },
-      { ชื่อ: "ณัฐวุฒิ", วันที่: "2025-07-22", เวลา: "15:00 - 16:00" }
-    ];
+    const API_URL = "https://your-flow-url"; // <-- ใส่ URL จริง
+    const API_KEY = "mysupersecret123";      // <-- ใส่ key จริง
 
-    // แปลงช่วงเวลา เช่น "13:00 - 14:00" → เป็นจำนวนนาที
-    function parseTimeRange(timeStr) {
-      const [start, end] = timeStr.split(" - ");
+    async function loadBookings() {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "x-api-key": API_KEY
+          }
+        });
+
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          renderTable(data);
+        } else {
+          document.getElementById("bookingList").innerHTML = `<p style="color:red">${data.message}</p>`;
+        }
+      } catch (err) {
+        console.error("โหลดข้อมูลล้มเหลว", err);
+        document.getElementById("bookingList").innerHTML = `<p style="color:red">ไม่สามารถโหลดข้อมูลได้</p>`;
+      }
+    }
+
+    function parseTimeRange(start, end) {
       const toMinutes = t => {
         const [h, m] = t.split(":").map(Number);
         return h * 60 + m;
@@ -64,7 +90,6 @@
       return [toMinutes(start), toMinutes(end)];
     }
 
-    // เวลาปัจจุบัน (วันที่ YYYY-MM-DD และนาที ณ ตอนนี้)
     function getNowDateTime() {
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
@@ -73,46 +98,85 @@
       return { today, nowMinutes };
     }
 
-    // แสดงตาราง
     function renderTable(data) {
       const { today, nowMinutes } = getNowDateTime();
+      const nowList = [];
+      const otherList = [];
+
+      data.forEach(item => {
+        const [startMin, endMin] = parseTimeRange(item.start, item.end);
+        const isToday = item.date === today;
+        const isNow = isToday && nowMinutes >= startMin && nowMinutes < endMin;
+
+        if (isNow) {
+          nowList.push(item);
+        } else {
+          otherList.push(item);
+        }
+      });
+
+      // 📌 แสดงรายการที่กำลังเกิดขึ้นตอนนี้
+      const nowHTML = nowList.length > 0 ? nowList.map(item => `
+        <div class="now-section">
+          <div class="now-title">${item.title}</div>
+          <div class="now-detail">🕒 ${item.start} - ${item.end}</div>
+          <div class="now-detail">👤 ผู้จอง: ${item.by}</div>
+          <div class="now-detail">👥 ผู้เข้าร่วม: ${item.count} ${item.external ? '(มีคนนอก)' : ''}</div>
+        </div>
+      `).join("") : "";
+
+      document.getElementById("bookingNow").innerHTML = nowHTML;
+
+      // 📌 แสดงตารางรายการอื่นๆ
       let table = `
         <table>
           <thead>
             <tr>
-              <th>ชื่อผู้จอง</th>
+              <th>ชื่อการประชุม</th>
+              <th>ผู้จอง</th>
               <th>วันที่</th>
               <th>เวลา</th>
+              <th>ผู้เข้าร่วม</th>
+              <th>คนนอก</th>
             </tr>
           </thead>
           <tbody>
       `;
 
-      data.forEach(item => {
-        const [startMin, endMin] = parseTimeRange(item.เวลา);
-        const isToday = item.วันที่ === today;
-        const isNow = isToday && nowMinutes >= startMin && nowMinutes <= endMin;
-
+      otherList.forEach(item => {
         table += `
-          <tr class="${isNow ? 'highlight' : ''}">
-            <td>${item.ชื่อ}</td>
-            <td>${item.วันที่}</td>
-            <td>${item.เวลา}</td>
+          <tr>
+            <td>${item.title}</td>
+            <td>${item.by}</td>
+            <td>${item.date}</td>
+            <td>${item.start} - ${item.end}</td>
+            <td>${item.count}</td>
+            <td>${item.external ? "✅" : "❌"}</td>
           </tr>
         `;
       });
 
       table += "</tbody></table>";
-      document.getElementById("bookingArea").innerHTML = table;
+      document.getElementById("bookingList").innerHTML = table;
     }
 
-    // เรียกเมื่อโหลดหน้า แล้วอัปเดตอัตโนมัติทุก 30 วิ
-    document.addEventListener("DOMContentLoaded", () => {
-      renderTable(mockData); // แสดงครั้งแรก
+    // 🔄 โหลดเฉพาะตอนนาที xx:00 หรือ xx:30
+    let lastFetchedMinute = null;
+    function maybeFetch() {
+      const now = new Date();
+      const minute = now.getMinutes();
+      const second = now.getSeconds();
+      const shouldFetch = (minute % 30 === 0) && second === 0;
 
-      setInterval(() => {
-        renderTable(mockData); // รีเฟรชทุก 30 วินาที
-      }, 30000);
+      if (shouldFetch && lastFetchedMinute !== minute) {
+        lastFetchedMinute = minute;
+        loadBookings();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadBookings(); // โหลดครั้งแรก
+      setInterval(maybeFetch, 1000*60); // ตรวจทุกวินาที x 60 = 1 นาที
     });
   </script>
 
