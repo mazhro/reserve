@@ -108,6 +108,9 @@
         const isToday = item.date === today;
         const isNow = isToday && nowMinutes >= startMin && nowMinutes < endMin;
 
+        // ✅ วางตรงนี้ (ภายใน forEach)
+        console.log("🔎", item.title, "now=", nowMinutes, "start=", startMin, "end=", endMin);
+        
         if (isNow) {
           nowList.push(item);
         } else {
