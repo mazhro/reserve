@@ -2,61 +2,95 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ระบบจองห้อง</title>
+  <title>รายการจองห้อง</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 500px;
+      max-width: 700px;
       margin: auto;
-      padding: 1rem;
+      padding: 2rem;
     }
-    input, select, button {
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    table {
       width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      font-size: 1rem;
+      border-collapse: collapse;
     }
-    .success {
-      background-color: #d4edda;
-      padding: 1rem;
-      border-radius: 5px;
-      color: #155724;
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .loading {
+      text-align: center;
+      font-style: italic;
+      color: gray;
     }
   </style>
 </head>
 <body>
 
-  <h2>ระบบจองห้อง (ทดลอง)</h2>
+  <h2>📅 รายการจองห้อง</h2>
 
-  <form id="bookingForm">
-    <label>ชื่อผู้จอง:</label>
-    <input type="text" name="name" required />
-
-    <label>วันที่:</label>
-    <input type="date" name="date" required />
-
-    <label>เวลา:</label>
-    <select name="time" required>
-      <option value="">-- เลือกช่วงเวลา --</option>
-      <option value="09:00-10:00">09:00 - 10:00</option>
-      <option value="10:00-11:00">10:00 - 11:00</option>
-      <option value="13:00-14:00">13:00 - 14:00</option>
-    </select>
-
-    <button type="submit">ส่งคำขอจอง</button>
-  </form>
-
-  <div id="response" style="display: none;" class="success">
-    ✅ บันทึกคำขอเรียบร้อย (แต่ระบบนี้ไม่เก็บข้อมูลจริง)
+  <div id="bookingArea">
+    <p class="loading">กำลังโหลดข้อมูล...</p>
   </div>
 
   <script>
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      // แสดงข้อความสำเร็จ
-      document.getElementById('response').style.display = 'block';
-      this.reset();
+    // 🔧 Mock ข้อมูลแทนที่ Power Automate
+    const mockData = [
+      { ชื่อ: "สมชาย", วันที่: "2025-07-24", เวลา: "09:00 - 10:00" },
+      { ชื่อ: "อรทัย", วันที่: "2025-07-24", เวลา: "13:00 - 14:00" },
+      { ชื่อ: "ณัฐวุฒิ", วันที่: "2025-07-25", เวลา: "10:00 - 11:00" }
+    ];
+
+    // ฟังก์ชันสำหรับแสดงข้อมูล
+    function renderTable(data) {
+      if (data.length === 0) {
+        document.getElementById("bookingArea").innerHTML = "<p class='loading'>ไม่มีรายการจอง</p>";
+        return;
+      }
+
+      let table = `
+        <table>
+          <thead>
+            <tr>
+              <th>ชื่อผู้จอง</th>
+              <th>วันที่</th>
+              <th>เวลา</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(item => {
+        table += `
+          <tr>
+            <td>${item.ชื่อ}</td>
+            <td>${item.วันที่}</td>
+            <td>${item.เวลา}</td>
+          </tr>
+        `;
+      });
+
+      table += "</tbody></table>";
+      document.getElementById("bookingArea").innerHTML = table;
+    }
+
+    // 🚀 เริ่มต้นแสดงข้อมูล
+    document.addEventListener("DOMContentLoaded", () => {
+      // สมมติว่า fetch จาก API
+      // fetch('https://your-power-automate-url.com')
+      //   .then(res => res.json())
+      //   .then(data => renderTable(data))
+
+      // ใช้ mock data แทน
+      renderTable(mockData);
     });
   </script>
 
