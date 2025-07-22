@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>รายการจองห้อง</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
@@ -26,6 +27,10 @@
     th {
       background-color: #f0f0f0;
     }
+    .highlight {
+      background-color: #d1f7d1; /* เขียวอ่อน */
+      font-weight: bold;
+    }
     .loading {
       text-align: center;
       font-style: italic;
@@ -42,20 +47,35 @@
   </div>
 
   <script>
-    // 🔧 Mock ข้อมูลแทนที่ Power Automate
+    // 🔧 Mock ข้อมูล — ภายหลังสามารถแทนที่ด้วยข้อมูลจาก Power Automate
     const mockData = [
-      { ชื่อ: "สมชาย", วันที่: "2025-07-24", เวลา: "09:00 - 10:00" },
-      { ชื่อ: "อรทัย", วันที่: "2025-07-24", เวลา: "13:00 - 14:00" },
-      { ชื่อ: "ณัฐวุฒิ", วันที่: "2025-07-25", เวลา: "10:00 - 11:00" }
+      { ชื่อ: "สมชาย", วันที่: "2025-07-22", เวลา: "09:00 - 10:00" },
+      { ชื่อ: "อรทัย", วันที่: "2025-07-22", เวลา: "13:00 - 14:00" },
+      { ชื่อ: "ณัฐวุฒิ", วันที่: "2025-07-22", เวลา: "15:00 - 16:00" }
     ];
 
-    // ฟังก์ชันสำหรับแสดงข้อมูล
-    function renderTable(data) {
-      if (data.length === 0) {
-        document.getElementById("bookingArea").innerHTML = "<p class='loading'>ไม่มีรายการจอง</p>";
-        return;
-      }
+    // แปลงช่วงเวลา เช่น "13:00 - 14:00" → เป็นจำนวนนาที
+    function parseTimeRange(timeStr) {
+      const [start, end] = timeStr.split(" - ");
+      const toMinutes = t => {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      };
+      return [toMinutes(start), toMinutes(end)];
+    }
 
+    // เวลาปัจจุบัน (วันที่ YYYY-MM-DD และนาที ณ ตอนนี้)
+    function getNowDateTime() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      return { today, nowMinutes };
+    }
+
+    // แสดงตาราง
+    function renderTable(data) {
+      const { today, nowMinutes } = getNowDateTime();
       let table = `
         <table>
           <thead>
@@ -69,8 +89,12 @@
       `;
 
       data.forEach(item => {
+        const [startMin, endMin] = parseTimeRange(item.เวลา);
+        const isToday = item.วันที่ === today;
+        const isNow = isToday && nowMinutes >= startMin && nowMinutes <= endMin;
+
         table += `
-          <tr>
+          <tr class="${isNow ? 'highlight' : ''}">
             <td>${item.ชื่อ}</td>
             <td>${item.วันที่}</td>
             <td>${item.เวลา}</td>
@@ -82,15 +106,13 @@
       document.getElementById("bookingArea").innerHTML = table;
     }
 
-    // 🚀 เริ่มต้นแสดงข้อมูล
+    // เรียกเมื่อโหลดหน้า แล้วอัปเดตอัตโนมัติทุก 30 วิ
     document.addEventListener("DOMContentLoaded", () => {
-      // สมมติว่า fetch จาก API
-      // fetch('https://your-power-automate-url.com')
-      //   .then(res => res.json())
-      //   .then(data => renderTable(data))
+      renderTable(mockData); // แสดงครั้งแรก
 
-      // ใช้ mock data แทน
-      renderTable(mockData);
+      setInterval(() => {
+        renderTable(mockData); // รีเฟรชทุก 30 วินาที
+      }, 30000);
     });
   </script>
 
