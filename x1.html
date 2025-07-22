@@ -102,67 +102,75 @@
       const { today, nowMinutes } = getNowDateTime();
       const nowList = [];
       const otherList = [];
-
+    
       data.forEach(item => {
         const [startMin, endMin] = parseTimeRange(item.start, item.end);
         const isToday = item.date === today;
         const isNow = isToday && nowMinutes >= startMin && nowMinutes < endMin;
-
-        // ✅ วางตรงนี้ (ภายใน forEach)
+    
         console.log("🔎", item.title, "now=", nowMinutes, "start=", startMin, "end=", endMin);
-        
+    
         if (isNow) {
           nowList.push(item);
         } else {
           otherList.push(item);
         }
       });
-
-      // 📌 แสดงรายการที่กำลังเกิดขึ้นตอนนี้
-      const nowHTML = nowList.length > 0 ? nowList.map(item => `
-        <div class="now-section">
-          <div class="now-title">${item.title}</div>
-          <div class="now-detail">🕒 ${item.start} - ${item.end}</div>
-          <div class="now-detail">👤 ผู้จอง: ${item.by}</div>
-          <div class="now-detail">👥 ผู้เข้าร่วม: ${item.count} ${item.external ? '(มีคนนอก)' : ''}</div>
-        </div>
-      `).join("") : "";
-
-      document.getElementById("bookingNow").innerHTML = nowHTML;
-
-      // 📌 แสดงตารางรายการอื่นๆ
-      let table = `
-        <table>
-          <thead>
-            <tr>
-              <th>ชื่อการประชุม</th>
-              <th>ผู้จอง</th>
-              <th>วันที่</th>
-              <th>เวลา</th>
-              <th>ผู้เข้าร่วม</th>
-              <th>คนนอก</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      otherList.forEach(item => {
-        table += `
-          <tr>
-            <td>${item.title}</td>
-            <td>${item.by}</td>
-            <td>${item.date}</td>
-            <td>${item.start} - ${item.end}</td>
-            <td>${item.count}</td>
-            <td>${item.external ? "✅" : "❌"}</td>
-          </tr>
+    
+      // ✅ 1. แสดงรายการ now แบบเด่น
+      const bookingNow = document.getElementById("bookingNow");
+      if (nowList.length > 0) {
+        bookingNow.innerHTML = nowList.map(item => `
+          <div class="now-section">
+            <div class="now-title">${item.title}</div>
+            <div class="now-detail">🕒 ${item.start} - ${item.end}</div>
+            <div class="now-detail">👤 ผู้จอง: ${item.by}</div>
+            <div class="now-detail">👥 ผู้เข้าร่วม: ${item.count} ${item.external ? '(มีคนนอก)' : ''}</div>
+          </div>
+        `).join('');
+      } else {
+        bookingNow.innerHTML = ""; // ล้างออกถ้าไม่มีรายการ now
+      }
+    
+      // ✅ 2. แสดงรายการอื่นในตาราง
+      const bookingList = document.getElementById("bookingList");
+      if (otherList.length > 0) {
+        let table = `
+          <table>
+            <thead>
+              <tr>
+                <th>ชื่อการประชุม</th>
+                <th>ผู้จอง</th>
+                <th>วันที่</th>
+                <th>เวลา</th>
+                <th>ผู้เข้าร่วม</th>
+                <th>คนนอก</th>
+              </tr>
+            </thead>
+            <tbody>
         `;
-      });
-
-      table += "</tbody></table>";
-      document.getElementById("bookingList").innerHTML = table;
+    
+        otherList.forEach(item => {
+          table += `
+            <tr>
+              <td>${item.title}</td>
+              <td>${item.by}</td>
+              <td>${item.date}</td>
+              <td>${item.start} - ${item.end}</td>
+              <td>${item.count}</td>
+              <td>${item.external ? "✅" : "❌"}</td>
+            </tr>
+          `;
+        });
+    
+        table += "</tbody></table>";
+        bookingList.innerHTML = table;
+      } else {
+        bookingList.innerHTML = `<p class="loading">ไม่มีรายการอื่น</p>`;
+      }
     }
 
+    
     // 🔄 โหลดเฉพาะตอนนาที xx:00 หรือ xx:30
     let lastFetchedMinute = null;
     function maybeFetch() {
