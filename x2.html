@@ -256,12 +256,19 @@
       document.getElementById("bookingList").innerHTML = table;
     }
 
+
     document.addEventListener("DOMContentLoaded", function() {
       loadBookings();
+    
+      let lastCheckedMinute = -1;
+    
       setInterval(() => {
         let now = new Date();
-        if (now.getMinutes() % 30 === 0) {
+        let minutes = now.getMinutes();
+    
+        if ((minutes === 0 || minutes === 30) && minutes !== lastCheckedMinute) {
           loadBookings();
+          lastCheckedMinute = minutes;
         }
       }, 60 * 1000);
     });
