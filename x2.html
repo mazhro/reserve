@@ -8,57 +8,55 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: white;
-      font-family: sans-serif;
-      color: #004d47;
       height: 100vh;
+      font-family: sans-serif;
+      background: white;
+      color: #004d47;
+      display: grid;
+      grid-template-rows: 100px 1fr 1fr;
       overflow: hidden;
     }
 
     .top-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
       background-color: #0c5550;
       color: white;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      position: relative;
-      padding-right: 2rem;
-    }
-
-    .top-bar .date {
-      font-size: 2.2rem;
-      font-weight: bold;
+      padding: 0 2rem;
     }
 
     .logo {
-      position: absolute;
-      top: 0;
-      left: 0;
       height: 100px;
       width: auto;
     }
 
-    .container {
+    .top-info {
+      text-align: right;
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 100px);
+      justify-content: center;
+      gap: 0.3rem;
     }
 
-    .top-section, .bottom-section {
-      flex: 1;
-      overflow-y: auto;
+    .top-info .date {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .top-info .time {
+      font-size: 1.6rem;
+      font-weight: bold;
     }
 
     .highlight-section {
       background-color: #f4fbfa;
-      padding: 2rem;
-      text-align: center;
-      color: #0c5550;
-      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      overflow: auto;
     }
 
     .highlight-time {
@@ -79,17 +77,17 @@
     }
 
     .highlight-detail .icon {
-      color: #0c5550;
-      background-color: #e0f2f1;
-      padding: 0.2rem 0.6rem;
-      border-radius: 8px;
+      background: #d1e0df;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      color: #003733;
+      font-weight: bold;
       margin-right: 0.5rem;
     }
 
     .table-section {
       padding: 1rem 2vw;
-      background-color: #ffffff;
-      height: 100%;
+      overflow: auto;
     }
 
     table {
@@ -127,21 +125,17 @@
 
   <div class="top-bar">
     <img src="https://mazhro.github.io/reserve/logo.jpg" alt="โลโก้" class="logo" />
-    <div class="date" id="todayText">กำลังโหลดวันที่...</div>
+    <div></div>
+    <div class="top-info">
+      <div id="todayText" class="date">โหลดวันที่...</div>
+      <div id="currentTime" class="time">--:-- - --:--</div>
+    </div>
   </div>
 
-  <div class="container">
-    <!-- ครึ่งบน: รายการปัจจุบัน -->
-    <div class="top-section">
-      <div id="bookingNow" class="highlight-section"></div>
-    </div>
+  <div id="bookingNow" class="highlight-section"></div>
 
-    <!-- ครึ่งล่าง: รายการอื่น -->
-    <div class="bottom-section">
-      <div class="table-section">
-        <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
-      </div>
-    </div>
+  <div class="table-section">
+    <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
   </div>
 
   <script>
@@ -226,6 +220,11 @@
         var isNow = isToday && now.nowMinutes >= range[0] && now.nowMinutes < range[1];
         (isNow ? nowList : otherList).push(item);
       }
+
+      let currentTimeText = (nowList.length > 0)
+        ? nowList[0].start + ' - ' + nowList[0].end
+        : 'ไม่มีรายการ';
+      document.getElementById("currentTime").textContent = currentTimeText;
 
       var nowHTML = "";
       for (var j = 0; j < nowList.length; j++) {
