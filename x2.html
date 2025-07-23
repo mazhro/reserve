@@ -16,21 +16,24 @@
     .header-now {
       background-color: #0c5550;
       color: white;
-      padding: 2rem;
+      padding: 1.5rem;
       text-align: center;
       position: relative;
+      height: 90px;
     }
 
     .header-now .date {
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: bold;
+      line-height: 90px;
     }
 
     .logo {
       position: absolute;
-      top: 1rem;
-      left: 1rem;
-      height: 60px;
+      top: 0;
+      left: 0;
+      height: 100%;
+      padding: 0.5rem;
     }
 
     .highlight-section {
@@ -41,34 +44,34 @@
     }
 
     .highlight-time {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       font-weight: bold;
       margin: 1rem 0;
     }
 
     .highlight-title {
-      font-size: 3rem;
+      font-size: 2.8rem;
       font-weight: bold;
       margin-bottom: 1rem;
     }
 
     .highlight-detail {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       margin: 0.5rem 0;
     }
 
     .table-section {
-      padding: 2rem;
+      padding: 1rem 2vw;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
     }
 
     th, td {
-      padding: 1rem;
+      padding: 0.4rem;
       border: 1px solid #ccc;
       text-align: center;
     }
@@ -79,7 +82,7 @@
 
     .loading {
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-style: italic;
       color: gray;
     }
@@ -88,7 +91,7 @@
 <body>
 
   <div class="header-now">
-    <img src="https://mazhro.github.io/reserve/logo.jpg" class="logo" alt="โลโก้" />
+    <img src="https://mazhro.github.io/reserve/20250716-01-meeting%20room.jpg" class="logo" alt="โลโก้" />
     <div class="date" id="todayText">กำลังโหลดวันที่...</div>
   </div>
 
@@ -182,7 +185,6 @@
         }
       }
 
-      // ส่วนบน
       var nowHTML = "";
       if (nowList.length > 0) {
         for (var j = 0; j < nowList.length; j++) {
@@ -197,7 +199,6 @@
       }
       document.getElementById("bookingNow").innerHTML = nowHTML;
 
-      // ส่วนล่าง
       var table = "";
       if (otherList.length > 0) {
         table += '<table><thead><tr>' +
