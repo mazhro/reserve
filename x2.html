@@ -19,7 +19,7 @@
     .top-bar {
       background-color: #0c5550;
       color: white;
-      padding: 1rem 1rem 2rem;
+      padding: 1rem 1rem 1.5rem;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -38,38 +38,23 @@
       position: absolute;
       top: 0;
       left: 0;
-      height: 120px;
+      height: 100px;
       width: auto;
     }
 
     #bookingNow {
-      margin-top: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #bookingNow .highlight-time,
-    #bookingNow .highlight-title,
-    #bookingNow .highlight-detail {
-      color: white;
+      margin-top: 1rem;
     }
 
     .highlight-time {
       font-size: 1.8rem;
       font-weight: bold;
+      color: white;
     }
 
-    .highlight-title {
-      font-size: 2.3rem;
-      font-weight: bold;
-      margin: 0.5rem 0;
-      text-align: center;
-    }
-
+    .highlight-title,
     .highlight-detail {
-      font-size: 1.1rem;
-      margin: 0.2rem 0;
+      display: none;
     }
 
     .highlight-detail .icon {
@@ -108,14 +93,8 @@
     }
 
     @media (max-width: 768px) {
-      .highlight-title {
-        font-size: 1.6rem;
-      }
       .highlight-time {
         font-size: 1.4rem;
-      }
-      .highlight-detail {
-        font-size: 1rem;
       }
       table {
         font-size: 1rem;
@@ -221,10 +200,7 @@
       var nowHTML = "";
       if (nowList.length > 0) {
         var n = nowList[0];
-        nowHTML = '<div class="highlight-time">' + n.start + ' - ' + n.end + '</div>' +
-                  '<div class="highlight-title">' + n.title + '</div>' +
-                  '<div class="highlight-detail"><span class="icon">👥</span> ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
-                  '<div class="highlight-detail"><span class="icon">👤</span> ผู้จอง: ' + (n.by || '-') + '</div>';
+        nowHTML = '<div class="highlight-time">' + n.start + ' - ' + n.end + '</div>';
       }
       document.getElementById("bookingNow").innerHTML = nowHTML;
 
@@ -256,7 +232,7 @@
         if (now.getSeconds() === 0 && now.getMinutes() % 30 === 0) {
           loadBookings();
         }
-      }, 1000);
+      }, 60*1000);
     });
   </script>
 </body>
