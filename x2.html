@@ -131,6 +131,15 @@
       return [parseInt(s[0]) * 60 + parseInt(s[1]), parseInt(e[0]) * 60 + parseInt(e[1])];
     }
 
+    function formatShortThaiDate(dateStr) {
+      var parts = dateStr.split("-"); // yyyy-mm-dd
+      var d = parseInt(parts[2], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var y = parseInt(parts[0], 10) + 543;
+      var thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      return d + " " + thMonthsShort[m] + " " + String(y).slice(2);
+    }
+
     function showError(msg) {
       document.getElementById("bookingList").innerHTML = '<p class="loading" style="color:red">' + msg + '</p>';
     }
@@ -197,7 +206,7 @@
         for (var k = 0; k < otherList.length; k++) {
           var o = otherList[k];
           table += '<tr>' +
-                   '<td>' + o.date + '</td>' +
+                   '<td>' + formatShortThaiDate(o.date) + '</td>' +
                    '<td>' + o.start + ' - ' + o.end + '</td>' +
                    '<td>' + o.title + '</td>' +
                    '<td>' + o.count + '</td>' +
@@ -218,7 +227,7 @@
         if (now.getSeconds() === 0 && now.getMinutes() % 30 === 0) {
           loadBookings();
         }
-      }, 1000);
+      }, 60*1000);
     });
   </script>
 </body>
