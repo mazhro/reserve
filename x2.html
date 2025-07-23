@@ -291,8 +291,8 @@
           var n = nowList[j];
           nowHTML += `<div>
                         <div class="highlight-title">${n.title}</div>
-                        <div class="highlight-detail"><span class="icon">🧑‍🤝‍🧑</span> ผู้เข้าร่วม: ${n.count || '-'}</div>
-                        <div class="highlight-detail"><span class="icon">🧑‍💼</span> ผู้จอง: ${n.by || '-'}</div>
+                        <div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ${n.count || '-'}</div>
+                        <div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ${n.by || '-'}</div>
                       </div>`;
         }
         document.getElementById("bookingNow").innerHTML = nowHTML;
@@ -316,7 +316,7 @@
         }
         table += '</tbody></table>';
       } else {
-        table = '<p class="loading">ไม่มีรายการอื่น.</p>';
+        table = '<p class="loading">ไม่มีรายการจองถัดไป.</p>';
       }
   
       document.getElementById("bookingList").innerHTML = table;
