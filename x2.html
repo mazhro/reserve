@@ -220,7 +220,7 @@
 
       let currentTimeText = (nowList.length > 0)
         ? nowList[0].start + ' - ' + nowList[0].end
-        : 'ห้องว่าง';
+        : '-ห้องว่าง-';
       document.getElementById("currentTime").textContent = currentTimeText;
 
       var nowHTML = "";
@@ -250,7 +250,7 @@
         }
         table += '</tbody></table>';
       } else {
-        table = '<p class="loading">ไม่มีรายการอื่น</p>';
+        table = '<p class="loading">ไม่มีรายการอื่น.</p>';
       }
 
       document.getElementById("bookingList").innerHTML = table;
