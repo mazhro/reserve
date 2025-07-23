@@ -142,8 +142,7 @@
                   '<div class="now-title">' + item.title + '</div>' +
                   '<div class="now-detail">🕒 ' + item.start + ' - ' + item.end + '</div>' +
                   '<div class="now-detail">👤 ผู้จอง: ' + item.by + '</div>' +
-                  '<div class="now-detail">👥 ผู้เข้าร่วม: ' + item.count +
-                  (item.external ? ' (มีคนนอก)' : '') + '</div>' +
+                  '<div class="now-detail">👥 ผู้เข้าร่วม: ' + item.count + '</div>' +
                   '</div>';
         }
         bookingNow.innerHTML = html;
@@ -155,18 +154,17 @@
       var bookingList = document.getElementById("bookingList");
       if (otherList.length > 0) {
         var table = '<table><thead><tr>' +
-                    '<th>ชื่อการประชุม</th><th>ผู้จอง</th><th>วันที่</th>' +
-                    '<th>เวลา</th><th>ผู้เข้าร่วม</th><th>คนนอก</th></tr></thead><tbody>';
+                    '<th>วันที่</th><th>เวลา</th><th>ชื่อการประชุม</th>' +
+                    '<th>ผู้เข้าร่วม</th><th>ผู้จอง</th></tr></thead><tbody>';
 
         for (var k = 0; k < otherList.length; k++) {
           var item = otherList[k];
           table += '<tr>' +
-                   '<td>' + item.title + '</td>' +
-                   '<td>' + item.by + '</td>' +
                    '<td>' + item.date + '</td>' +
                    '<td>' + item.start + ' - ' + item.end + '</td>' +
+                   '<td>' + item.title + '</td>' +
                    '<td>' + item.count + '</td>' +
-                   '<td>' + (item.external ? '✅' : '❌') + '</td>' +
+                   '<td>' + item.by + '</td>' +
                    '</tr>';
         }
         table += '</tbody></table>';
