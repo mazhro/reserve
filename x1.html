@@ -78,7 +78,14 @@
         }
       } catch (err) {
         console.error("โหลดข้อมูลล้มเหลว", err);
-        document.getElementById("bookingList").innerHTML = `<p style="color:red">ไม่สามารถโหลดข้อมูลได้</p>`;
+        const errorMsg = err?.message || "ไม่ทราบสาเหตุ";
+      
+        document.getElementById("bookingList").innerHTML = `
+          <p style="color:red">
+            🚫 ไม่สามารถโหลดข้อมูลได้<br />
+            <small>รายละเอียด: ${errorMsg}</small>
+          </p>
+        `;
       }
     }
 
