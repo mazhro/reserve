@@ -13,20 +13,27 @@
       color: #004d47;
     }
 
-    .header-now {
+    .top-bar {
       background-color: #0c5550;
       color: white;
-      padding: 1.5rem;
-      text-align: center;
-      height: 90px;
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
-    .date {
+    .top-bar .date {
       font-size: 2.5rem;
       font-weight: bold;
+    }
+
+    .logo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100px;
+      width: auto;
     }
 
     .highlight-section {
@@ -79,23 +86,13 @@
       font-style: italic;
       color: gray;
     }
-
-    .logo {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 90px;
-      z-index: 10;
-    }
   </style>
 </head>
 <body>
 
   <!-- โลโก้ -->
-  <img src="https://mazhro.github.io/reserve/logo.jpg" alt="โลโก้" class="logo" />
-
-  <!-- ส่วนหัว -->
-  <div class="header-now">
+  <div class="top-bar">
+    <img src="https://mazhro.github.io/reserve/logo.jpg" alt="โลโก้" class="logo" />
     <div class="date" id="todayText">กำลังโหลดวันที่...</div>
   </div>
 
