@@ -13,7 +13,7 @@
       background: white;
       color: #004d47;
       display: grid;
-      grid-template-rows: 100px 1fr 1fr;
+      grid-template-rows: 140px 1fr 1fr;
       overflow: hidden;
     }
 
@@ -27,7 +27,7 @@
     }
 
     .logo {
-      height: 100px;
+      height: 140px;
       width: auto;
     }
 
@@ -40,12 +40,12 @@
     }
 
     .top-info .date {
-      font-size: 2rem;
+      font-size: 2.8rem;
       font-weight: bold;
     }
 
     .top-info .time {
-      font-size: 1.6rem;
+      font-size: 2rem;
       font-weight: bold;
     }
 
@@ -59,16 +59,10 @@
       overflow: auto;
     }
 
-    .highlight-time {
-      font-size: 3rem;
-      font-weight: bold;
-      margin: 1rem 0;
-    }
-
     .highlight-title {
       font-size: 3.5rem;
       font-weight: bold;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .highlight-detail {
@@ -77,23 +71,20 @@
     }
 
     .highlight-detail .icon {
-      background: #d1e0df;
-      padding: 0.3rem 0.6rem;
-      border-radius: 6px;
-      color: #003733;
       font-weight: bold;
       margin-right: 0.5rem;
     }
 
     .table-section {
-      padding: 1rem 2vw;
+      padding: 0.5rem 2vw;
       overflow: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
+      color: #333;
     }
 
     th, td {
@@ -114,10 +105,11 @@
     }
 
     @media screen and (min-width: 1600px) {
-      .highlight-time { font-size: 4rem; }
-      .highlight-title { font-size: 4.5rem; }
+      .highlight-title { font-size: 4.2rem; }
       .highlight-detail { font-size: 2.5rem; }
-      table { font-size: 2rem; }
+      table { font-size: 1.6rem; }
+      .top-info .date { font-size: 3.2rem; }
+      .top-info .time { font-size: 2.4rem; }
     }
   </style>
 </head>
@@ -230,7 +222,6 @@
       for (var j = 0; j < nowList.length; j++) {
         var n = nowList[j];
         nowHTML += `<div>
-                      <div class="highlight-time">${n.start} - ${n.end}</div>
                       <div class="highlight-title">${n.title}</div>
                       <div class="highlight-detail"><span class="icon">👥</span> ผู้เข้าร่วม: ${n.count || '-'}</div>
                       <div class="highlight-detail"><span class="icon">👤</span> ผู้จอง: ${n.by || '-'}</div>
