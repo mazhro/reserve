@@ -58,143 +58,138 @@
   <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
 
   <script>
-    const API_URL = "https://default03c56608515c49f3b2e42aad4e09c8.ce.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9cb2c5df518448a4bae5a5ee7dee45ef/triggers/manual/paths/invoke/?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=i3-M9sFxI8UXWcvTEwkVbSyC7wjD0zq4MbIfWSdCxps"; // <-- ใส่ URL จริง
-    const API_KEY = "D3s01bTjuux8n2iklXpt26URPcXtb7bO";      // <-- ใส่ key จริง
+    var API_URL = "https://default03c56608515c49f3b2e42aad4e09c8.ce.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9cb2c5df518448a4bae5a5ee7dee45ef/triggers/manual/paths/invoke/?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=i3-M9sFxI8UXWcvTEwkVbSyC7wjD0zq4MbIfWSdCxps"; // <-- ใส่ URL จริง
+    var API_KEY = "D3s01bTjuux8n2iklXpt26URPcXtb7bO";      // <-- ใส่ key จริง
 
-    async function loadBookings() {
+    function loadBookings() {
       try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "x-api-key": API_KEY
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", API_URL, true);
+        xhr.setRequestHeader("x-api-key", API_KEY);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                if (Object.prototype.toString.call(data) === '[object Array]') {
+                  renderTable(data);
+                } else {
+                  document.getElementById("bookingList").innerHTML =
+                    '<p style="color:red">' + data.message + '</p>';
+                }
+              } catch (e) {
+                document.getElementById("bookingList").innerHTML =
+                  '<p style="color:red">❌ ข้อมูลไม่ถูกต้อง</p>';
+              }
+            } else {
+              document.getElementById("bookingList").innerHTML =
+                '<p style="color:red">❌ โหลดล้มเหลว [' + xhr.status + ']</p>';
+            }
           }
-        });
-
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          renderTable(data);
-        } else {
-          document.getElementById("bookingList").innerHTML = `<p style="color:red">${data.message}</p>`;
-        }
+        };
+        xhr.send(null);
       } catch (err) {
-        console.error("โหลดข้อมูลล้มเหลว", err);
-        const errorMsg = (err && err.message) ? err.message : "ไม่ทราบสาเหตุ";
-      
-        document.getElementById("bookingList").innerHTML = `
-          <p style="color:red">
-            🚫 ไม่สามารถโหลดข้อมูลได้<br />
-            <small>รายละเอียด: ${errorMsg}</small>
-          </p>
-        `;
+        document.getElementById("bookingList").innerHTML =
+          '<p style="color:red">🚫 ไม่สามารถโหลดข้อมูลได้<br /><small>รายละเอียด: ' + err.message + '</small></p>';
       }
     }
 
     function parseTimeRange(start, end) {
-      const toMinutes = t => {
-        const [h, m] = t.split(":").map(Number);
-        return h * 60 + m;
-      };
+      function toMinutes(t) {
+        var parts = t.split(":");
+        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
       return [toMinutes(start), toMinutes(end)];
     }
 
     function getNowDateTime() {
-      const now = new Date();
-      const pad = n => String(n).padStart(2, '0');
-      const today = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-      const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      return { today, nowMinutes };
+      var now = new Date();
+      var pad = function(n) {
+        return (n < 10 ? '0' : '') + n;
+      };
+      var today = now.getFullYear() + "-" + pad(now.getMonth()+1) + "-" + pad(now.getDate());
+      var nowMinutes = now.getHours() * 60 + now.getMinutes();
+      return { today: today, nowMinutes: nowMinutes };
     }
 
     function renderTable(data) {
-      const { today, nowMinutes } = getNowDateTime();
-      const nowList = [];
-      const otherList = [];
-    
-      data.forEach(item => {
-        const [startMin, endMin] = parseTimeRange(item.start, item.end);
-        const isToday = item.date === today;
-        const isNow = isToday && nowMinutes >= startMin && nowMinutes < endMin;
-    
-        console.log("🔎", item.title, "now=", nowMinutes, "start=", startMin, "end=", endMin);
-    
+      var nowInfo = getNowDateTime();
+      var today = nowInfo.today;
+      var nowMinutes = nowInfo.nowMinutes;
+      var nowList = [];
+      var otherList = [];
+
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        var range = parseTimeRange(item.start, item.end);
+        var isToday = item.date === today;
+        var isNow = isToday && nowMinutes >= range[0] && nowMinutes < range[1];
+
         if (isNow) {
           nowList.push(item);
         } else {
           otherList.push(item);
         }
-      });
-    
-      // ✅ 1. แสดงรายการ now แบบเด่น
-      const bookingNow = document.getElementById("bookingNow");
-      if (nowList.length > 0) {
-        bookingNow.innerHTML = nowList.map(item => `
-          <div class="now-section">
-            <div class="now-title">${item.title}</div>
-            <div class="now-detail">🕒 ${item.start} - ${item.end}</div>
-            <div class="now-detail">👤 ผู้จอง: ${item.by}</div>
-            <div class="now-detail">👥 ผู้เข้าร่วม: ${item.count} ${item.external ? '(มีคนนอก)' : ''}</div>
-          </div>
-        `).join('');
-      } else {
-        bookingNow.innerHTML = ""; // ล้างออกถ้าไม่มีรายการ now
       }
-    
-      // ✅ 2. แสดงรายการอื่นในตาราง
-      const bookingList = document.getElementById("bookingList");
+
+      // รายการเวลาปัจจุบัน
+      var bookingNow = document.getElementById("bookingNow");
+      if (nowList.length > 0) {
+        var html = "";
+        for (var j = 0; j < nowList.length; j++) {
+          var item = nowList[j];
+          html += '<div class="now-section">' +
+                  '<div class="now-title">' + item.title + '</div>' +
+                  '<div class="now-detail">🕒 ' + item.start + ' - ' + item.end + '</div>' +
+                  '<div class="now-detail">👤 ผู้จอง: ' + item.by + '</div>' +
+                  '<div class="now-detail">👥 ผู้เข้าร่วม: ' + item.count +
+                  (item.external ? ' (มีคนนอก)' : '') + '</div>' +
+                  '</div>';
+        }
+        bookingNow.innerHTML = html;
+      } else {
+        bookingNow.innerHTML = "";
+      }
+
+      // รายการอื่น
+      var bookingList = document.getElementById("bookingList");
       if (otherList.length > 0) {
-        let table = `
-          <table>
-            <thead>
-              <tr>
-                <th>ชื่อการประชุม</th>
-                <th>ผู้จอง</th>
-                <th>วันที่</th>
-                <th>เวลา</th>
-                <th>ผู้เข้าร่วม</th>
-                <th>คนนอก</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-    
-        otherList.forEach(item => {
-          table += `
-            <tr>
-              <td>${item.title}</td>
-              <td>${item.by}</td>
-              <td>${item.date}</td>
-              <td>${item.start} - ${item.end}</td>
-              <td>${item.count}</td>
-              <td>${item.external ? "✅" : "❌"}</td>
-            </tr>
-          `;
-        });
-    
-        table += "</tbody></table>";
+        var table = '<table><thead><tr>' +
+                    '<th>ชื่อการประชุม</th><th>ผู้จอง</th><th>วันที่</th>' +
+                    '<th>เวลา</th><th>ผู้เข้าร่วม</th><th>คนนอก</th></tr></thead><tbody>';
+
+        for (var k = 0; k < otherList.length; k++) {
+          var item = otherList[k];
+          table += '<tr>' +
+                   '<td>' + item.title + '</td>' +
+                   '<td>' + item.by + '</td>' +
+                   '<td>' + item.date + '</td>' +
+                   '<td>' + item.start + ' - ' + item.end + '</td>' +
+                   '<td>' + item.count + '</td>' +
+                   '<td>' + (item.external ? '✅' : '❌') + '</td>' +
+                   '</tr>';
+        }
+        table += '</tbody></table>';
         bookingList.innerHTML = table;
       } else {
-        bookingList.innerHTML = `<p class="loading">ไม่มีรายการอื่น</p>`;
+        bookingList.innerHTML = '<p class="loading">ไม่มีรายการอื่น</p>';
       }
     }
 
-    
-    // 🔄 โหลดเฉพาะตอนนาที xx:00 หรือ xx:30
-    let lastFetchedMinute = null;
+    var lastFetchedMinute = -1;
     function maybeFetch() {
-      const now = new Date();
-      const minute = now.getMinutes();
-      const second = now.getSeconds();
-      const shouldFetch = (minute % 30 === 0) && second === 0;
-
-      if (shouldFetch && lastFetchedMinute !== minute) {
+      var now = new Date();
+      var minute = now.getMinutes();
+      var second = now.getSeconds();
+      if ((minute % 30 === 0) && second === 0 && lastFetchedMinute !== minute) {
         lastFetchedMinute = minute;
         loadBookings();
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadBookings(); // โหลดครั้งแรก
-      setInterval(maybeFetch, 1000*60); // ตรวจทุกวินาที x 60 = 1 นาที
+    document.addEventListener("DOMContentLoaded", function() {
+      loadBookings();
+      setInterval(maybeFetch, 1000);
     });
   </script>
 
