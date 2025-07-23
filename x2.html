@@ -18,14 +18,15 @@
       color: white;
       padding: 1.5rem;
       text-align: center;
-      position: relative;
       height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .header-now .date {
+    .date {
       font-size: 2.5rem;
       font-weight: bold;
-      line-height: 90px;
     }
 
     .highlight-section {
@@ -78,19 +79,30 @@
       font-style: italic;
       color: gray;
     }
+
+    .logo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 90px;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
 
-  <div class="header-now" style="margin-left:90px;">
-    <img src="https://mazhro.github.io/reserve/logo.jpg"
-     alt="โลโก้"
-     style="position:absolute; top:0; left:0; height:90px; z-index:10;" />
+  <!-- โลโก้ -->
+  <img src="https://mazhro.github.io/reserve/logo.jpg" alt="โลโก้" class="logo" />
+
+  <!-- ส่วนหัว -->
+  <div class="header-now">
     <div class="date" id="todayText">กำลังโหลดวันที่...</div>
   </div>
 
+  <!-- รายการเวลาปัจจุบัน -->
   <div id="bookingNow" class="highlight-section"></div>
 
+  <!-- ตารางรายการอื่น -->
   <div class="table-section">
     <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
   </div>
@@ -118,16 +130,12 @@
     }
 
     function parseTimeRange(start, end) {
-      var s = start.split(":");
-      var e = end.split(":");
-      var sMin = parseInt(s[0]) * 60 + parseInt(s[1]);
-      var eMin = parseInt(e[0]) * 60 + parseInt(e[1]);
-      return [sMin, eMin];
+      var s = start.split(":"), e = end.split(":");
+      return [parseInt(s[0]) * 60 + parseInt(s[1]), parseInt(e[0]) * 60 + parseInt(e[1])];
     }
 
     function showError(msg) {
-      document.getElementById("bookingList").innerHTML =
-        '<p class="loading" style="color:red">' + msg + '</p>';
+      document.getElementById("bookingList").innerHTML = '<p class="loading" style="color:red">' + msg + '</p>';
     }
 
     function loadBookings() {
@@ -163,33 +171,25 @@
       var now = getNowInfo();
       document.getElementById("todayText").textContent = now.displayDate;
 
-      var nowList = [];
-      var otherList = [];
+      var nowList = [], otherList = [];
 
       for (var i = 0; i < data.length; i++) {
         var item = data[i];
         var range = parseTimeRange(item.start, item.end);
         var isToday = item.date === now.today;
         var isNow = isToday && now.nowMinutes >= range[0] && now.nowMinutes < range[1];
-
-        if (isNow) {
-          nowList.push(item);
-        } else {
-          otherList.push(item);
-        }
+        (isNow ? nowList : otherList).push(item);
       }
 
       var nowHTML = "";
-      if (nowList.length > 0) {
-        for (var j = 0; j < nowList.length; j++) {
-          var n = nowList[j];
-          nowHTML += '<div>' +
-                      '<div class="highlight-time">' + n.start + ' - ' + n.end + '</div>' +
-                      '<div class="highlight-title">' + n.title + '</div>' +
-                      '<div class="highlight-detail">👥 ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
-                      '<div class="highlight-detail">👤 ผู้จอง: ' + (n.by || '-') + '</div>' +
-                     '</div>';
-        }
+      for (var j = 0; j < nowList.length; j++) {
+        var n = nowList[j];
+        nowHTML += '<div>' +
+                    '<div class="highlight-time">' + n.start + ' - ' + n.end + '</div>' +
+                    '<div class="highlight-title">' + n.title + '</div>' +
+                    '<div class="highlight-detail">👥 ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
+                    '<div class="highlight-detail">👤 ผู้จอง: ' + (n.by || '-') + '</div>' +
+                   '</div>';
       }
       document.getElementById("bookingNow").innerHTML = nowHTML;
 
@@ -211,7 +211,6 @@
       } else {
         table = '<p class="loading">ไม่มีรายการอื่น</p>';
       }
-
       document.getElementById("bookingList").innerHTML = table;
     }
 
@@ -222,7 +221,7 @@
         if (now.getSeconds() === 0 && now.getMinutes() % 30 === 0) {
           loadBookings();
         }
-      }, 60*1000);
+      }, 1000);
     });
   </script>
 </body>
