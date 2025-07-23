@@ -12,26 +12,23 @@
       font-family: sans-serif;
       color: #004d47;
       height: 100vh;
-      display: flex;
-      flex-direction: column;
+      overflow: hidden;
     }
 
     .top-bar {
       background-color: #0c5550;
       color: white;
-      padding: 1rem 1rem 1.5rem;
-      text-align: center;
+      height: 100px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: flex-end;
       position: relative;
+      padding-right: 2rem;
     }
 
-    .date {
-      font-size: 2.5rem;
+    .top-bar .date {
+      font-size: 2.2rem;
       font-weight: bold;
-      margin-top: 1rem;
     }
 
     .logo {
@@ -42,41 +39,67 @@
       width: auto;
     }
 
-    #bookingNow {
-      margin-top: 1rem;
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 100px);
+    }
+
+    .top-section, .bottom-section {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .highlight-section {
+      background-color: #f4fbfa;
+      padding: 2rem;
+      text-align: center;
+      color: #0c5550;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .highlight-time {
-      font-size: 1.8rem;
+      font-size: 3rem;
       font-weight: bold;
-      color: white;
+      margin: 1rem 0;
     }
 
-    .highlight-title,
+    .highlight-title {
+      font-size: 3.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
     .highlight-detail {
-      display: none;
+      font-size: 2rem;
+      margin: 0.5rem 0;
     }
 
     .highlight-detail .icon {
-      color: #ffd700;
-      margin-right: 0.3rem;
+      color: #0c5550;
+      background-color: #e0f2f1;
+      padding: 0.2rem 0.6rem;
+      border-radius: 8px;
+      margin-right: 0.5rem;
     }
 
-    .bottom-section {
-      flex: 1;
-      overflow-y: auto;
+    .table-section {
       padding: 1rem 2vw;
-      background-color: #f4fbfa;
+      background-color: #ffffff;
+      height: 100%;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1.2rem;
+      font-size: 1.5rem;
     }
 
     th, td {
-      padding: 0.4rem;
+      padding: 0.6rem;
       border: 1px solid #ccc;
       text-align: center;
     }
@@ -87,18 +110,16 @@
 
     .loading {
       text-align: center;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-style: italic;
       color: gray;
     }
 
-    @media (max-width: 768px) {
-      .highlight-time {
-        font-size: 1.4rem;
-      }
-      table {
-        font-size: 1rem;
-      }
+    @media screen and (min-width: 1600px) {
+      .highlight-time { font-size: 4rem; }
+      .highlight-title { font-size: 4.5rem; }
+      .highlight-detail { font-size: 2.5rem; }
+      table { font-size: 2rem; }
     }
   </style>
 </head>
@@ -107,11 +128,20 @@
   <div class="top-bar">
     <img src="https://mazhro.github.io/reserve/logo.jpg" alt="โลโก้" class="logo" />
     <div class="date" id="todayText">กำลังโหลดวันที่...</div>
-    <div id="bookingNow"></div>
   </div>
 
-  <div class="bottom-section">
-    <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
+  <div class="container">
+    <!-- ครึ่งบน: รายการปัจจุบัน -->
+    <div class="top-section">
+      <div id="bookingNow" class="highlight-section"></div>
+    </div>
+
+    <!-- ครึ่งล่าง: รายการอื่น -->
+    <div class="bottom-section">
+      <div class="table-section">
+        <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -164,7 +194,7 @@
             if (xhr.status === 200) {
               try {
                 var data = JSON.parse(xhr.responseText);
-                if (Object.prototype.toString.call(data) === '[object Array]') {
+                if (Array.isArray(data)) {
                   renderTable(data);
                 } else {
                   showError("ข้อมูลไม่ถูกต้อง");
@@ -198,9 +228,14 @@
       }
 
       var nowHTML = "";
-      if (nowList.length > 0) {
-        var n = nowList[0];
-        nowHTML = '<div class="highlight-time">' + n.start + ' - ' + n.end + '</div>';
+      for (var j = 0; j < nowList.length; j++) {
+        var n = nowList[j];
+        nowHTML += `<div>
+                      <div class="highlight-time">${n.start} - ${n.end}</div>
+                      <div class="highlight-title">${n.title}</div>
+                      <div class="highlight-detail"><span class="icon">👥</span> ผู้เข้าร่วม: ${n.count || '-'}</div>
+                      <div class="highlight-detail"><span class="icon">👤</span> ผู้จอง: ${n.by || '-'}</div>
+                    </div>`;
       }
       document.getElementById("bookingNow").innerHTML = nowHTML;
 
@@ -210,29 +245,30 @@
                  '<th>วันที่</th><th>เวลา</th><th>ชื่อ</th><th>ผู้เข้าร่วม</th><th>ผู้จอง</th></tr></thead><tbody>';
         for (var k = 0; k < otherList.length; k++) {
           var o = otherList[k];
-          table += '<tr>' +
-                   '<td>' + formatShortThaiDate(o.date) + '</td>' +
-                   '<td>' + o.start + ' - ' + o.end + '</td>' +
-                   '<td>' + o.title + '</td>' +
-                   '<td>' + o.count + '</td>' +
-                   '<td>' + o.by + '</td>' +
-                   '</tr>';
+          table += `<tr>
+                      <td>${formatShortThaiDate(o.date)}</td>
+                      <td>${o.start} - ${o.end}</td>
+                      <td>${o.title}</td>
+                      <td>${o.count}</td>
+                      <td>${o.by}</td>
+                    </tr>`;
         }
         table += '</tbody></table>';
       } else {
         table = '<p class="loading">ไม่มีรายการอื่น</p>';
       }
+
       document.getElementById("bookingList").innerHTML = table;
     }
 
     document.addEventListener("DOMContentLoaded", function() {
       loadBookings();
-      setInterval(function() {
-        var now = new Date();
+      setInterval(() => {
+        let now = new Date();
         if (now.getSeconds() === 0 && now.getMinutes() % 30 === 0) {
           loadBookings();
         }
-      }, 60*1000);
+      }, 60 * 1000);
     });
   </script>
 </body>
