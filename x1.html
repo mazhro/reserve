@@ -78,7 +78,7 @@
         }
       } catch (err) {
         console.error("โหลดข้อมูลล้มเหลว", err);
-        const errorMsg = err?.message || "ไม่ทราบสาเหตุ";
+        const errorMsg = (err && err.message) ? err.message : "ไม่ทราบสาเหตุ";
       
         document.getElementById("bookingList").innerHTML = `
           <p style="color:red">
