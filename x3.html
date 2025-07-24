@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ตารางจองห้องประชุม</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: sans-serif;
+      background: white;
+      color: #004d47;
+      display: -ms-grid;
+      display: grid;
+      -ms-grid-rows: 140px 1fr 1fr;
+      grid-template-rows: 140px 1fr 1fr;
+      overflow: hidden;
+    }
+
+    .top-bar {
+      display: -ms-grid;
+      display: grid;
+      -ms-grid-columns: auto 1fr auto;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      background-color: white;
+      color: #004d47;
+      padding: 0 2rem 0 0;
+    }
+
+    .logo {
+      height: 140px;
+      width: auto;
+    }
+
+    .top-info {
+      text-align: right;
+      display: -ms-flexbox;
+      display: flex;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      -ms-flex-pack: center;
+      justify-content: center;
+    }
+
+    .top-info .date {
+      font-size: 2.8rem;
+      font-weight: bold;
+    }
+
+    .top-info .time {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .highlight-section {
+      background-color: #0c5550;
+      display: -ms-flexbox;
+      display: flex;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -ms-flex-align: center;
+      align-items: center;
+      padding: 1rem;
+      overflow: auto;
+      color: white;
+    }
+
+    .highlight-title {
+      font-size: 3.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      color: #ffffff;
+    }
+
+    .highlight-detail {
+      font-size: 2rem;
+      margin: 0.5rem 0;
+      color: #ffffff;
+    }
+
+    .highlight-detail .icon {
+      font-weight: bold;
+      margin-right: 0.5rem;
+      color: #ffffff;
+    }
+
+    .table-section {
+      padding: 0.5rem 2vw;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.3rem;
+      color: #333;
+    }
+
+    th, td {
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #e0f2f1;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <img src="https://mazhro.github.io/reserve/logo-wide.jpg" alt="โลโก้" class="logo" />
+    <div></div>
+    <div class="top-info">
+      <div id="todayText" class="date">โหลดวันที่...</div>
+      <div id="currentTime" class="time">--:-- - --:--</div>
+    </div>
+  </div>
+
+  <div id="bookingNow" class="highlight-section"></div>
+
+  <div class="table-section">
+    <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
+  </div>
+
+  <script>
+    var API_URL = "https://default03c56608515c49f3b2e42aad4e09c8.ce.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9cb2c5df518448a4bae5a5ee7dee45ef/triggers/manual/paths/invoke/?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=i3-M9sFxI8UXWcvTEwkVbSyC7wjD0zq4MbIfWSdCxps"; // <-- ใส่ URL จริง
+    var API_KEY = "D3s01bTjuux8n2iklXpt26URPcXtb7bO";      // <-- ใส่ key จริง
+
+    var QUOTES = [
+      "สุขภาพดีไม่มีขาย อยากได้ต้องสร้างเองทุกวัน",
+      "ออกกำลังกายวันละนิด สุขภาพจิตก็ดีตาม",
+      "พักผ่อนให้พอ แล้วพรุ่งนี้จะพร้อมสำหรับทุกสิ่ง"
+    ];
+
+    function pad(n) {
+      return (n < 10 ? '0' : '') + n;
+    }
+
+    function getNowInfo() {
+      var now = new Date();
+      var y = now.getFullYear();
+      var m = now.getMonth();
+      var d = now.getDate();
+      var h = now.getHours();
+      var min = now.getMinutes();
+      var today = y + '-' + pad(m + 1) + '-' + pad(d);
+      var minutes = h * 60 + min;
+      var thMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+      var display = d + " " + thMonths[m] + " " + (y + 543);
+      return { today: today, nowMinutes: minutes, displayDate: display };
+    }
+
+    function parseTimeRange(start, end) {
+      var s = start.split(":"), e = end.split(":");
+      return [parseInt(s[0]) * 60 + parseInt(s[1]), parseInt(e[0]) * 60 + parseInt(e[1])];
+    }
+
+    function formatShortThaiDate(dateStr) {
+      var parts = dateStr.split("-");
+      var d = parseInt(parts[2], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      var y = parseInt(parts[0], 10) + 543;
+      var thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      return d + " " + thMonthsShort[m] + " " + String(y).slice(2);
+    }
+
+    function showError(msg) {
+      document.getElementById("bookingList").innerHTML = '<p class="loading" style="color:red">' + msg + '</p>';
+    }
+
+    function showRandomQuote() {
+      var pick = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      document.getElementById("bookingNow").innerHTML =
+        '<div><div class="highlight-title">✅ ห้องว่าง</div>' +
+        '<div class="highlight-detail" style="text-align:center;">"' + pick + '"</div></div>';
+    }
+
+    function loadBookings() {
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", API_URL, true);
+        xhr.setRequestHeader("x-api-key", API_KEY);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              try {
+                var data = JSON.parse(xhr.responseText);
+                if (Object.prototype.toString.call(data) === '[object Array]') {
+                  renderTable(data);
+                } else {
+                  showError("ข้อมูลไม่ถูกต้อง");
+                }
+              } catch (e) {
+                showError("❌ ข้อมูล JSON ผิดพลาด");
+              }
+            } else {
+              showError("❌ โหลดล้มเหลว [" + xhr.status + "]");
+            }
+          }
+        };
+        xhr.send(null);
+      } catch (err) {
+        showError("❌ ไม่สามารถโหลดข้อมูลได้<br>" + err.message);
+      }
+    }
+
+    function renderTable(data) {
+      var now = getNowInfo();
+      document.getElementById("todayText").textContent = now.displayDate;
+
+      var nowList = [], otherList = [];
+
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        var range = parseTimeRange(item.start, item.end);
+        var isToday = item.date === now.today;
+        var isNow = isToday && now.nowMinutes >= range[0] && now.nowMinutes < range[1];
+        if (isNow) {
+          nowList.push(item);
+        } else {
+          otherList.push(item);
+        }
+      }
+
+      var currentTimeText = (nowList.length > 0)
+        ? nowList[0].start + ' - ' + nowList[0].end
+        : '(ห้องว่าง)';
+      document.getElementById("currentTime").textContent = currentTimeText;
+
+      if (nowList.length > 0) {
+        var nowHTML = "";
+        for (var j = 0; j < nowList.length; j++) {
+          var n = nowList[j];
+          nowHTML += '<div><div class="highlight-title">' + n.title + '</div>' +
+                     '<div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
+                     '<div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ' + (n.by || '-') + '</div></div>';
+        }
+        document.getElementById("bookingNow").innerHTML = nowHTML;
+      } else {
+        showRandomQuote();
+      }
+
+      var table = "";
+      if (otherList.length > 0) {
+        table += '<table><thead><tr>' +
+                 '<th>วันที่</th><th>เวลา</th><th>หัวข้อ</th><th>ผู้เข้าร่วม</th><th>ผู้จอง</th></tr></thead><tbody>';
+        for (var k = 0; k < otherList.length; k++) {
+          var o = otherList[k];
+          table += '<tr><td>' + formatShortThaiDate(o.date) + '</td>' +
+                   '<td>' + o.start + ' - ' + o.end + '</td>' +
+                   '<td>' + o.title + '</td>' +
+                   '<td>' + o.count + '</td>' +
+                   '<td>' + o.by + '</td></tr>';
+        }
+        table += '</tbody></table>';
+      } else {
+        table = '<p class="loading">ไม่มีรายการจองถัดไป.</p>';
+      }
+
+      document.getElementById("bookingList").innerHTML = table;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      loadBookings();
+
+      var lastCheckedMinute = -1;
+      setInterval(function() {
+        var now = new Date();
+        var minutes = now.getMinutes();
+        if ((minutes === 0 || minutes === 30) && minutes !== lastCheckedMinute) {
+          loadBookings();
+          lastCheckedMinute = minutes;
+        }
+      }, 60000);
+    });
+
+    setInterval(function() {
+      var currentText = document.getElementById("currentTime") ? document.getElementById("currentTime").textContent : "";
+      if (currentText.indexOf("ห้องว่าง") !== -1) {
+        showRandomQuote();
+      }
+    }, 300000);
+  </script>
+</body>
+</html>
