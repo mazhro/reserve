@@ -140,10 +140,7 @@
     </div>
   </div>
 
-  <div id="bookingNow" class="highlight-section">
-    <img src="https://mazhro.github.io/reserve/qrcode.svg" class="qrcode" alt="QR Code" />
-  </div>
-
+  <div id="bookingNow" class="highlight-section"></div>
 
   <div class="table-section">
     <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
@@ -288,6 +285,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+      var qr = document.createElement("img");
+      qr.src = "https://mazhro.github.io/reserve/qrcode.svg";
+      qr.alt = "QR Code";
+      qr.className = "qrcode";
+      document.getElementById("bookingNow").appendChild(qr);
+      
       loadBookings();
 
       var lastCheckedMinute = -1;
