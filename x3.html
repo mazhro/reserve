@@ -285,12 +285,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      var qr = document.createElement("img");
-      qr.src = "https://mazhro.github.io/reserve/qrcode.svg";
-      qr.alt = "QR Code";
-      qr.className = "qrcode";
-      document.getElementById("bookingNow").appendChild(qr);
-      
       loadBookings();
 
       var lastCheckedMinute = -1;
@@ -310,6 +304,12 @@
         showRandomQuote();
       }
     }, 300000);
+
+    var qr = document.createElement("img");
+    qr.src = "https://mazhro.github.io/reserve/qrcode.svg";
+    qr.alt = "QR Code";
+    qr.className = "qrcode";
+    document.getElementById("bookingNow").appendChild(qr);
   </script>
 </body>
 </html>
