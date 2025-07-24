@@ -119,7 +119,6 @@
   </style>
 </head>
 <body>
-
   <div class="top-bar">
     <img src="https://mazhro.github.io/reserve/logo-wide.jpg" alt="โลโก้" class="logo" />
     <div></div>
@@ -135,10 +134,11 @@
     <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
   </div>
 
+    
   <script>
     var API_URL = "https://default03c56608515c49f3b2e42aad4e09c8.ce.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9cb2c5df518448a4bae5a5ee7dee45ef/triggers/manual/paths/invoke/?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=i3-M9sFxI8UXWcvTEwkVbSyC7wjD0zq4MbIfWSdCxps"; // <-- ใส่ URL จริง
     var API_KEY = "D3s01bTjuux8n2iklXpt26URPcXtb7bO";      // <-- ใส่ key จริง
-  
+
     const QUOTES = [
       "สุขภาพดีไม่มีขาย อยากได้ต้องสร้างเองทุกวัน",
       "ออกกำลังกายวันละนิด สุขภาพจิตก็ดีตาม",
@@ -191,11 +191,11 @@
       "ใช้ชีวิตให้สมดุล แล้วสุขภาพจะสมบูรณ์",
       "หายใจให้ลึก ยิ้มให้กว้าง แล้วเดินหน้าต่อไป"
     ];
-  
+
     function pad(n) {
       return (n < 10 ? '0' : '') + n;
     }
-  
+
     function getNowInfo() {
       var now = new Date();
       var y = now.getFullYear();
@@ -209,12 +209,12 @@
       var display = d + " " + thMonths[m] + " " + (y + 543);
       return { today: today, nowMinutes: minutes, displayDate: display };
     }
-  
+
     function parseTimeRange(start, end) {
       var s = start.split(":"), e = end.split(":");
       return [parseInt(s[0]) * 60 + parseInt(s[1]), parseInt(e[0]) * 60 + parseInt(e[1])];
     }
-  
+
     function formatShortThaiDate(dateStr) {
       var parts = dateStr.split("-");
       var d = parseInt(parts[2], 10);
@@ -223,11 +223,11 @@
       var thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
       return d + " " + thMonthsShort[m] + " " + String(y).slice(2);
     }
-  
+
     function showError(msg) {
       document.getElementById("bookingList").innerHTML = '<p class="loading" style="color:red">' + msg + '</p>';
     }
-  
+
     function showRandomQuote() {
       const pick = QUOTES[Math.floor(Math.random() * QUOTES.length)];
       document.getElementById("bookingNow").innerHTML = `
@@ -236,7 +236,7 @@
           <div class="highlight-detail" style="text-align:center;">"${pick}"</div>
         </div>`;
     }
-  
+
     function loadBookings() {
       try {
         var xhr = new XMLHttpRequest();
@@ -265,13 +265,13 @@
         showError("❌ ไม่สามารถโหลดข้อมูลได้<br>" + err.message);
       }
     }
-  
+
     function renderTable(data) {
       var now = getNowInfo();
       document.getElementById("todayText").textContent = now.displayDate;
-  
+
       var nowList = [], otherList = [];
-  
+
       for (var i = 0; i < data.length; i++) {
         var item = data[i];
         var range = parseTimeRange(item.start, item.end);
@@ -279,70 +279,69 @@
         var isNow = isToday && now.nowMinutes >= range[0] && now.nowMinutes < range[1];
         (isNow ? nowList : otherList).push(item);
       }
-  
+
       let currentTimeText = (nowList.length > 0)
         ? nowList[0].start + ' - ' + nowList[0].end
         : '(ห้องว่าง)';
       document.getElementById("currentTime").textContent = currentTimeText;
-  
+
       if (nowList.length > 0) {
         var nowHTML = "";
         for (var j = 0; j < nowList.length; j++) {
           var n = nowList[j];
-          nowHTML += `<div>
-                        <div class="highlight-title">${n.title}</div>
-                        <div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ${n.count || '-'}</div>
-                        <div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ${n.by || '-'}</div>
-                      </div>`;
+          nowHTML += '<div>' +
+                      '<div class="highlight-title">' + n.title + '</div>' +
+                      '<div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
+                      '<div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ' + (n.by || '-') + '</div>' +
+                    '</div>';
         }
         document.getElementById("bookingNow").innerHTML = nowHTML;
       } else {
         showRandomQuote();
       }
-  
+
       var table = "";
       if (otherList.length > 0) {
         table += '<table><thead><tr>' +
-                 '<th>วันที่</th><th>เวลา</th><th>หัวข้อ</th><th>ผู้เข้าร่วม</th><th>ผู้จอง</th></tr></thead><tbody>';
+                '<th>วันที่</th><th>เวลา</th><th>หัวข้อ</th><th>ผู้เข้าร่วม</th><th>ผู้จอง</th></tr></thead><tbody>';
         for (var k = 0; k < otherList.length; k++) {
           var o = otherList[k];
-          table += `<tr>
-                      <td>${formatShortThaiDate(o.date)}</td>
-                      <td>${o.start} - ${o.end}</td>
-                      <td>${o.title}</td>
-                      <td>${o.count}</td>
-                      <td>${o.by}</td>
-                    </tr>`;
+          table += '<tr>' +
+                    '<td>' + formatShortThaiDate(o.date) + '</td>' +
+                    '<td>' + o.start + ' - ' + o.end + '</td>' +
+                    '<td>' + o.title + '</td>' +
+                    '<td>' + o.count + '</td>' +
+                    '<td>' + o.by + '</td>' +
+                  '</tr>';
         }
         table += '</tbody></table>';
       } else {
         table = '<p class="loading">ไม่มีรายการจองถัดไป.</p>';
       }
-  
+
       document.getElementById("bookingList").innerHTML = table;
     }
-  
+
     document.addEventListener("DOMContentLoaded", function() {
       loadBookings();
-  
-      let lastCheckedMinute = -1;
-      setInterval(() => {
-        let now = new Date();
-        let minutes = now.getMinutes();
+
+      var lastCheckedMinute = -1;
+      setInterval(function() {
+        var now = new Date();
+        var minutes = now.getMinutes();
         if ((minutes === 0 || minutes === 30) && minutes !== lastCheckedMinute) {
           loadBookings();
           lastCheckedMinute = minutes;
         }
       }, 60 * 1000);
     });
-  
-    setInterval(() => {
-      let currentText = document.getElementById("currentTime")?.textContent || "";
-      if (currentText.includes("ห้องว่าง")) {
+
+    setInterval(function() {
+      var currentText = document.getElementById("currentTime")?.textContent || "";
+      if (currentText.indexOf("ห้องว่าง") !== -1) {
         showRandomQuote();
       }
     }, 5 * 60 * 1000);
-
   </script>
 </body>
 </html>
