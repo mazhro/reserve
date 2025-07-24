@@ -222,12 +222,8 @@
       var min = now.getMinutes();
       var today = y + '-' + pad(m + 1) + '-' + pad(d);
       var minutes = h * 60 + min;
-    
-      var thDays = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
       var thMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
-      var dayText = thDays[now.getDay()];
-      var display = dayText + ", " + d + " " + thMonths[m] + " " + (y + 543);
-    
+      var display = d + " " + thMonths[m] + " " + (y + 543);
       return { today: today, nowMinutes: minutes, displayDate: display };
     }
 
