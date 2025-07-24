@@ -58,11 +58,11 @@
 
     .qrcode {
       position: absolute;
-      bottom: 1rem;
-      right: 1rem;
-      width: 80px;
+      bottom: 10px;
+      right: 10px;
+      width: 100px;
       height: auto;
-      z-index: 10;
+      z-index: 1;
     }
 
     .highlight-section {
@@ -140,7 +140,11 @@
     </div>
   </div>
 
-  <div id="bookingNow" class="highlight-section"></div>
+  <div class="highlight-section">
+    <div id="bookingNow"></div>
+    <img src="https://mazhro.github.io/reserve/qrcode.svg" alt="QR Code" class="qr-code" />
+  </div>
+
 
   <div class="table-section">
     <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
@@ -304,12 +308,6 @@
         showRandomQuote();
       }
     }, 300000);
-
-    var qr = document.createElement("img");
-    qr.src = "https://mazhro.github.io/reserve/qrcode.svg";
-    qr.alt = "QR Code";
-    qr.className = "qrcode";
-    document.getElementById("bookingNow").appendChild(qr);
   </script>
 </body>
 </html>
