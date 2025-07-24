@@ -56,7 +56,17 @@
       font-weight: bold;
     }
 
+    .qrcode {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      width: 80px;
+      height: auto;
+      z-index: 10;
+    }
+
     .highlight-section {
+      position: relative;
       background-color: #0c5550;
       display: -ms-flexbox;
       display: flex;
@@ -130,7 +140,10 @@
     </div>
   </div>
 
-  <div id="bookingNow" class="highlight-section"></div>
+  <div id="bookingNow" class="highlight-section">
+    <img src="https://mazhro.github.io/reserve/qrcode.svg" class="qrcode" alt="QR Code" />
+  </div>
+
 
   <div class="table-section">
     <div id="bookingList"><p class="loading">กำลังโหลดข้อมูล...</p></div>
