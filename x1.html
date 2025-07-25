@@ -70,19 +70,22 @@
     .highlight-section {
       position: relative;
       background-color: #0c5550;
-      display: -ms-flexbox;
       display: flex;
-      -ms-flex-direction: column;
       flex-direction: column;
-      -ms-flex-pack: center;
       justify-content: center;
-      -ms-flex-align: center;
       align-items: center;
-      padding: 1rem;
+      padding: 2rem;
       overflow: auto;
       color: white;
+      text-align: center;
     }
 
+    .highlight-content {
+      max-width: 90%;
+      margin: 0 auto;
+      word-wrap: break-word;
+    }
+    
     .highlight-title {
       font-size: 3.5rem;
       font-weight: bold;
@@ -310,9 +313,12 @@
         var nowHTML = "";
         for (var j = 0; j < nowList.length; j++) {
           var n = nowList[j];
-          nowHTML += '<div><div class="highlight-title">' + n.title + '</div>' +
-                     '<div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
-                     '<div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ' + (n.by || '-') + '</div></div>';
+          nowHTML += '<div class="highlight-content">' +
+                       '<div class="highlight-detail">⏳ ห้องกำลังใช้งาน</div>' +
+                       '<div class="highlight-title">' + n.title + '</div>' +
+                       '<div class="highlight-detail"><span class="icon">👭</span> ผู้เข้าร่วม: ' + (n.count || '-') + '</div>' +
+                       '<div class="highlight-detail"><span class="icon">🧑‍💻</span> ผู้จอง: ' + (n.by || '-') + '</div>' +
+                     '</div>';
         }
         document.getElementById("bookingNow").innerHTML = nowHTML;
       } else {
