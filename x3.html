@@ -90,14 +90,12 @@
       font-weight: bold;
       margin-bottom: 1.5rem;
       color: #ffffff;
-      white-space: normal;         /* ✅ ยอมให้ขึ้นบรรทัดใหม่ */
-      word-wrap: break-word;       /* ✅ รองรับ Tizen */
-      line-height: 1.3;
+      white-space: nowrap;       /* ✅ ไม่ให้ตกบรรทัด ถ้าไม่จำเป็น */
+      overflow-wrap: break-word; /* ✅ หากยาวมากจริงให้ตัด */
+      word-break: break-word;    /* ✅ สำรอง */
+      display: inline-block;     /* ✅ แสดงพอดีไม่บีบ */
       max-width: 100%;
-      display: block;
     }
-
-
 
     .highlight-detail {
       font-size: 2rem;
