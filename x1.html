@@ -351,16 +351,16 @@
 
     document.addEventListener("DOMContentLoaded", function() {
       loadBookings();
-
+    
       var lastCheckedMinute = -1;
       setInterval(function() {
         var now = new Date();
         var minutes = now.getMinutes();
-        if ((minutes === 0 || minutes === 30) && minutes !== lastCheckedMinute) {
+        if ((minutes % 15 === 0) && minutes !== lastCheckedMinute) {
           loadBookings();
           lastCheckedMinute = minutes;
         }
-      }, 60000);
+      }, 60000); // ตรวจทุก 1 นาที
     });
 
     setInterval(function() {
