@@ -131,6 +131,13 @@
       background-color: #e0f2f1;
     }
 
+    .wrap-text {
+      white-space: normal;
+      word-wrap: break-word;
+      word-break: break-word;
+      width: 50%;
+    }
+
     .loading {
       text-align: center;
       font-size: 1.5rem;
@@ -337,7 +344,7 @@
           var o = otherList[k];
           table += '<tr><td>' + formatShortThaiDate(o.date) + '</td>' +
                    '<td>' + o.start + ' - ' + o.end + '</td>' +
-                   '<td>' + o.title + '</td>' +
+                   '<td class="wrap-text">' + o.title + '</td>' +
                    '<td>' + o.count + '</td>' +
                    '<td>' + o.by + '</td></tr>';
         }
