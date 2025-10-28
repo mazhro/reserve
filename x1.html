@@ -265,8 +265,8 @@
       var now = new Date();
       var min = now.getMinutes();
     
-      // ถ้านาทีขึ้นต้นด้วย 0 หรือ 30
-      if (min === 0 || min === 30) {
+      // ถ้านาทีขึ้นต้นด้วย 0, 15, 30, 45
+      if (min === 0 || min === 15 || min === 30 || min === 45) {
         document.getElementById("bookingNow").innerHTML =
           '<div><div class="highlight-title">✅ ห้องว่าง</div>' +
           '<div class="highlight-detail" style="text-align:center;">"Longer healthy life at your full potential."</div></div>';
