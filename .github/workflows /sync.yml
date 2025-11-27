@@ -8,30 +8,36 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    steps:
-      - name: Debug PAT
-        run: |
-          echo "PAT length = ${#PAT}"
-          echo "PAT length = ${{ secrets.PAT }}"
 
-      - name: Checkout personal repo
+    steps:
+      - name: Checkout personal repo (main)
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.PAT }}       # ใช้ PAT สำหรับ push ได้
+          # fetch-depth: 0                  # ต้องดึง history เต็ม
 
       - name: Pull from Org repo
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git remote add upstream "https://github.com/ramasrimed/roomdisplay.git"
-          git fetch upstream
-          
-          # เหมือนต้นฉบับ commit comment, message, history
-          # แต่จะเอา workflows เก็บไว้
-          git reset --hard upstream/main
-          git restore --source=HEAD@{1} .github/workflows
-          git push --force
 
-          # เอาเฉพาะที่เพิ่ม/อัพเดทเท่านั้น กรณีต้นทางลบไฟล์จะไม่หายด้วย
-        #  git merge upstream/main --no-edit || true
-        #  git push
+          # 1) ดึง upstream repo (repo ต้นทาง)
+          git remote add upstream https://github.com/ramasrimed/roomdisplay.git
+          git fetch upstream
+
+          # 2) ดึง branch workflow จาก repo ปลายทาง
+          git fetch origin workflow:workflow
+
+          # 3) ไปที่ branch main ของ repo ปลายทาง
+          git checkout main
+
+          # 4) Mirror main ให้เหมือน upstream/main 100%
+          git reset --hard upstream/main
+
+          # 5) Restore workflow folder จาก branch workflow
+          git checkout workflow -- .github/workflows
+
+          # 6) Push กลับแบบ force เพื่อ sync ให้ตรง
+          git add .
+          git commit --amend --no-edit || true
+          git push --force
