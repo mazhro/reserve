@@ -6,27 +6,40 @@ name: Manual workflow
 # or API.
 on:
   workflow_dispatch:
-    # Inputs the workflow accepts.
-    inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
-        # The data type of the input
-        type: string
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+        
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  sync:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+      - name: Checkout personal repo (main)
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}       # ใช้ PAT สำหรับ push ได้
+          # fetch-depth: 0                  # ต้องดึง history เต็ม
+
+      - name: Pull from Org repo
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+          # 1) ดึง upstream repo (repo ต้นทาง)
+          git remote add upstream https://github.com/ramasrimed/roomdisplay.git
+          git fetch upstream
+
+          # 2) ดึง branch workflow จาก repo ปลายทาง
+          git fetch origin workflow:workflow
+
+          # 3) ไปที่ branch main ของ repo ปลายทาง
+          git checkout main
+
+          # 4) Mirror main ให้เหมือน upstream/main 100%
+          git reset --hard upstream/main
+
+          # 5) Restore workflow folder จาก branch workflow
+          git checkout workflow -- .github/workflows
+
+          # 6) Push กลับแบบ force เพื่อ sync ให้ตรง
+          git add .
+          git commit --amend --no-edit || true
+          git push --force
