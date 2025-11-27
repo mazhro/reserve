@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PAT }}       # ใช้ PAT สำหรับ push ได้
-          # fetch-depth: 0                  # ต้องดึง history เต็ม
+          fetch-depth: 0                  # ต้องดึง history เต็ม
 
       - name: Pull from Org repo
         run: |
@@ -28,7 +28,7 @@ jobs:
           git fetch upstream
 
           # 2) ดึง branch workflow จาก repo ปลายทาง
-          git fetch origin workflow
+          git fetch origin workflow:workflow
           
           # 3) ไปที่ branch main ของ repo ปลายทาง
           git checkout main
