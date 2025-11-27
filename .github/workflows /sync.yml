@@ -26,8 +26,8 @@ jobs:
           git fetch upstream
 
           # 2) ดึง branch workflow จาก repo ปลายทาง
-          git fetch origin workflow:workflow
-
+          git fetch origin workflow
+          
           # 3) ไปที่ branch main ของ repo ปลายทาง
           git checkout main
 
