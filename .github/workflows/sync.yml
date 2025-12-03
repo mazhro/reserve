@@ -4,6 +4,10 @@ on:
 #  schedule:
 #    - cron: '*/10 * * * *'   # sync ทุก 10 นาที
   workflow_dispatch:
+  push:
+    branches:
+      - main
+      - workflow
 
 jobs:
   sync:
