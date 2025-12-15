@@ -1,4 +1,4 @@
-name: Sync from Org Repo
+name: Sync from ramasrimed-roomdisplay
 
 on:
   workflow_dispatch:
