@@ -90,7 +90,7 @@
       font-weight: bold;
       margin-bottom: 1.5rem;
       color: #ffffff;
-      white-space: nowrap;       /* ✅ ไม่ให้ตกบรรทัด ถ้าไม่จำเป็น */
+      white-space: normal;       /* ✅ ให้ตกบรรทัด */
       overflow-wrap: break-word; /* ✅ หากยาวมากจริงให้ตัด */
       word-break: break-word;    /* ✅ สำรอง */
       display: inline-block;     /* ✅ แสดงพอดีไม่บีบ */
@@ -265,11 +265,11 @@
       var now = new Date();
       var min = now.getMinutes();
     
-      // ถ้านาทีขึ้นต้นด้วย 0 หรือ 30
-      if (min === 0 || min === 30) {
+      // ถ้านาทีขึ้นต้นด้วย 0, 15, 30, 45
+      if (min === 0 || min === 15 || min === 30 || min === 45) {
         document.getElementById("bookingNow").innerHTML =
           '<div><div class="highlight-title">✅ ห้องว่าง</div>' +
-          '<div class="highlight-detail" style="text-align:center;">"Longer healthy life at your full potential"</div></div>';
+          '<div class="highlight-detail" style="text-align:center;">"Longer healthy life at your full potential."</div></div>';
         return; // จบเลย ไม่ต้องสุ่ม Quote
       }
 
