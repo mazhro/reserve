@@ -48,25 +48,23 @@
       -ms-transform-origin: 50% 50%;
       transform-origin: 50% 50%;
     }
-    /* faint mint pinwheel cut by the sheet's bottom-right corner (portrait: tucked behind the footer band);
+    /* faint mint pinwheel, half size, sitting just above the footer band in the sheet's bottom-right corner;
        mint #e5efe2 keeps ink-2 text 8.9:1 */
     .sheet-art {
       position: absolute;
       z-index: -1;
       right: 0;
-      bottom: 0;
-      width: 560px;
-      height: 560px;
+      bottom: 180px;
+      width: 280px;
+      height: 280px;
       background: url(assets/ramasri-pinwheel.png) no-repeat 0 0;
-      background-size: 760px 760px;
+      background-size: 380px 380px;
     }
 
-    /* 1. header: sage band with a faint pinwheel behind the clock (mint is lighter than sage, so ink contrast only rises) */
+    /* 1. header: sage band (mint is lighter than sage, so ink contrast only rises) */
     .top, .room {
-      background: #bfdcc9 url(assets/ramasri-pinwheel.png) no-repeat 700px -150px;
-      background-size: 600px 600px;
+      background: #bfdcc9;
     }
-    .room { background-position: 700px -314px; } /* continues the motif from .top (164px tall) */
     .top {
       position: relative;
       height: 164px;
@@ -105,7 +103,7 @@
     /* 2. room */
     .room {
       height: 124px;
-      margin: 0;
+      margin: -2px 0 0; /* overlaps .top by 2px: patches the scale-transform hairline so the sage band reads as one piece */
       padding: 6px 72px 0;
       box-sizing: border-box;
       font-size: 84px;
@@ -418,10 +416,13 @@
       background: #a3c9b3;
     }
     .is-now .item-rail:before { top: -10px; } /* bridge the band's top padding */
-    .item:first-child .item-rail:before { top: 22px; }
+    /* first row of each group: rail starts at the dot's centre, nothing above it.
+       ":first-child" never matched here (.group-head is always the true first child), so use the sibling that follows it. */
+    .group-head + .item .item-rail:before { top: 26px; }
     .item:last-child .item-rail:before { bottom: auto; height: 22px; }
     .item.is-now:last-child .item-rail:before { height: 32px; }
-    .item:first-child:last-child .item-rail:before { display: none; }
+    /* solo booking in a group (first AND last row): no rail at all, same "true first child" reasoning as above */
+    .group-head + .item:last-child .item-rail:before { display: none; }
     .item-rail:after {
       content: "";
       position: absolute;
@@ -557,8 +558,8 @@
     }
     .is-land .top {
       height: 150px;
-      background-position: 1480px -210px;
     }
+    .is-land .sheet-art { bottom: 0; } /* right column has no footer under it; sits at the stage's own corner */
     .is-land .logo { top: 33px; }
     .is-land .clock { top: 18px; }
     .is-land .room {
@@ -566,10 +567,11 @@
       left: 523px;
       right: 480px;
       top: 33px;
+      margin-top: 0; /* undo the portrait seam-patch offset: this row is absolutely positioned, not stacked under .top */
       height: 84px;
       padding: 0 0 0 44px;
       border-left: 3px solid #88b89d;
-      background: none; /* sits on .top's motif */
+      background: none; /* sits on .top's sage band */
       font-size: 60px;
       line-height: 84px;
     }
