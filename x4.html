@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ตารางจองห้องประชุม</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" />
+  <style>
+    /* Ramasri palette: leaf #8cbaa3, teal #669283, sage #c8e0d3, mint #e5efe2, forest #3a5356,
+       healing #e2be76, care #c98f7f; #4f6b6a = forest-soft for secondary text on light grounds */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #e5efe2;
+    }
+    body {
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    .plex, .time, .date, .room, .free-word, .next-until, .next-label, .next-time,
+    .busy-label, .busy-title, .busy-when, .idle-title, .group-head, .item-time, .more, .empty, .foot-cta, .tag {
+      font-family: 'IBM Plex Sans Thai', Tahoma, sans-serif;
+    }
+    .is-hidden { display: none !important; }
+
+    /* 1080x1920 design stage, scaled + centred by fitStage() */
+    #stage {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1080px;
+      height: 1920px;
+      margin: -960px 0 0 -540px;
+      overflow: hidden;
+      background: #e5efe2;
+      color: #3a5356;
+      font-family: 'Sarabun', Tahoma, sans-serif;
+      -webkit-transform-origin: 50% 50%;
+      -ms-transform-origin: 50% 50%;
+      transform-origin: 50% 50%;
+    }
+
+    /* 1. header */
+    .top {
+      position: relative;
+      height: 164px;
+    }
+    .logo {
+      position: absolute;
+      left: 72px;
+      top: 56px;
+      width: 403px;
+      height: 84px;
+    }
+    .clock {
+      position: absolute;
+      right: 72px;
+      top: 40px;
+      text-align: right;
+    }
+    .time {
+      font-size: 72px;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .date {
+      margin-top: 10px;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: #4f6b6a;
+    }
+
+    /* 2. room */
+    .room {
+      height: 124px;
+      margin: 0;
+      padding: 6px 72px 0;
+      box-sizing: border-box;
+      font-size: 84px;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 3. status hero (864px = 45%) */
+    .hero {
+      position: relative;
+      height: 864px;
+      overflow: hidden;
+      color: #fff;
+      background: #c8e0d3;
+      border-bottom-right-radius: 200px;
+    }
+    .hero.is-free {
+      background: #669283;
+      background: -webkit-linear-gradient(top right, #8cbaa3 0%, #669283 58%);
+      background: linear-gradient(to bottom left, #8cbaa3 0%, #669283 58%);
+    }
+    .hero.is-busy { background: #3a5356; }
+    .hero.is-idle { color: #3a5356; }
+    .is-idle .hero-art { opacity: .45; }
+    .hero-art {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: url(assets/curve-arcs.png) no-repeat 100% 0;
+      background-size: cover;
+    }
+    .hero-body {
+      position: relative;
+      height: 100%;
+      padding: 56px 72px 60px;
+      box-sizing: border-box;
+    }
+
+    /* FREE */
+    .free-word {
+      margin: -6px 0 0 -6px;
+      font-size: 280px;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+    .next {
+      margin-top: 10px;
+      padding: 34px 44px 38px;
+      background: #fff;
+      color: #3a5356;
+      border-radius: 40px;
+    }
+    .next-until {
+      font-size: 60px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .next-sub {
+      margin-top: 6px;
+      font-size: 32px;
+      line-height: 1.45;
+      color: #4f6b6a;
+    }
+    .next-row {
+      display: -webkit-flex;
+      display: flex;
+      margin-top: 22px;
+      padding-top: 24px;
+      border-top: 3px solid #e5efe2;
+    }
+    .next-when {
+      width: 252px;
+      -webkit-flex: none;
+      flex: none;
+    }
+    .next-label {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: #4f6b6a;
+    }
+    .next-time {
+      font-size: 34px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    .next-title {
+      -webkit-flex: 1;
+      flex: 1;
+      min-width: 0;
+      max-height: 98px;
+      overflow: hidden;
+      font-size: 34px;
+      font-weight: 500;
+      line-height: 1.44;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .quote {
+      position: absolute;
+      left: 72px;
+      right: 96px;
+      bottom: 56px;
+      margin: 0;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.5;
+      text-indent: -0.42em;
+    }
+
+    /* BUSY */
+    .busy-label {
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1.3;
+      color: #c8e0d3;
+    }
+    .dot {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      margin: 0 18px 4px 0;
+      vertical-align: middle;
+      border-radius: 50%;
+      background: #e2be76;
+      -webkit-animation: pulse 2.4s ease-in-out infinite;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @-webkit-keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+    .busy-title {
+      margin: 26px 0 0;
+      overflow: hidden;
+      font-size: 100px;
+      font-weight: 600;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .busy-foot {
+      position: absolute;
+      left: 72px;
+      right: 72px;
+      bottom: 60px;
+    }
+    .busy-when {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      -webkit-align-items: baseline;
+      align-items: baseline;
+      font-size: 48px;
+      line-height: 1.25;
+    }
+    .busy-time { font-weight: 500; color: #c8e0d3; }
+    .busy-left { font-weight: 600; }
+    .bar {
+      height: 18px;
+      margin: 22px 0 28px;
+      overflow: hidden;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .16);
+    }
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: 9px;
+      background: #e2be76;
+    }
+    .busy-meta {
+      font-size: 32px;
+      line-height: 1.4;
+      color: #c8e0d3;
+    }
+    .busy-meta b, .item-meta b { font-weight: 600; }
+    .busy-meta b { color: #fff; }
+    .busy-meta span, .item-meta span { margin-right: 44px; }
+
+    /* loading / error */
+    .idle { padding-top: 40px; }
+    .idle-title {
+      font-size: 72px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .idle-sub {
+      max-width: 900px;
+      margin-top: 24px;
+      font-size: 36px;
+      line-height: 1.5;
+      color: #3a5356;
+    }
+
+    /* 4. upcoming timeline */
+    .agenda {
+      height: 588px;
+      padding: 32px 72px 0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .group + .group { margin-top: 14px; }
+    .group-head {
+      margin-bottom: 10px;
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .item {
+      display: -webkit-flex;
+      display: flex;
+    }
+    .item-time {
+      width: 132px;
+      -webkit-flex: none;
+      flex: none;
+      font-size: 36px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .item-time small {
+      display: block;
+      font-size: 26px;
+      font-weight: 400;
+      line-height: 1.3;
+      color: #4f6b6a;
+    }
+    .item-rail {
+      position: relative;
+      width: 60px;
+      -webkit-flex: none;
+      flex: none;
+    }
+    .item-rail:before {
+      content: "";
+      position: absolute;
+      left: 28px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #c8e0d3;
+    }
+    .item:first-child .item-rail:before { top: 22px; }
+    .item:last-child .item-rail:before { bottom: auto; height: 22px; }
+    .item:first-child:last-child .item-rail:before { display: none; }
+    .item-rail:after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 12px;
+      width: 18px;
+      height: 18px;
+      border: 5px solid #e5efe2;
+      border-radius: 50%;
+      background: #669283;
+    }
+    .is-now .item-rail:after { background: #e2be76; }
+    .item-body {
+      -webkit-flex: 1;
+      flex: 1;
+      min-width: 0;
+      padding-bottom: 14px;
+    }
+    .item-title {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 34px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .tag {
+      display: inline-block;
+      margin-right: 14px;
+      padding: 0 16px;
+      vertical-align: 4px;
+      border-radius: 20px;
+      background: #3a5356;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 38px;
+    }
+    .item-meta {
+      font-size: 26px;
+      line-height: 1.4;
+      color: #4f6b6a;
+    }
+    .more {
+      margin: 0 0 0 192px;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #4f6b6a;
+    }
+    .empty {
+      padding-top: 150px;
+      text-align: center;
+      font-size: 40px;
+      font-weight: 500;
+      color: #4f6b6a;
+    }
+
+    /* 5. footer */
+    .foot {
+      position: relative;
+      height: 180px;
+      margin: 0 72px;
+      border-top: 3px solid #c8e0d3;
+      box-sizing: border-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+    .qr {
+      width: 128px;
+      height: 128px;
+      padding: 12px;
+      -webkit-flex: none;
+      flex: none;
+      border-radius: 20px;
+      background: #fff;
+    }
+    .qr img {
+      display: block;
+      width: 128px;
+      height: 128px;
+    }
+    .foot-text { margin-left: 36px; }
+    .foot-cta {
+      font-size: 38px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .foot-tag {
+      margin-top: 4px;
+      font-size: 28px;
+      line-height: 1.45;
+      color: #4f6b6a;
+    }
+    .stale {
+      position: absolute;
+      right: 0;
+      bottom: 22px;
+      font-size: 22px;
+      line-height: 1.4;
+      color: #4f6b6a;
+    }
+    .stale:before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin: 0 10px 2px 0;
+      vertical-align: middle;
+      border-radius: 50%;
+      background: #c98f7f;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dot { -webkit-animation: none; animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <header class="top">
+      <img class="logo" src="assets/ramasri-logo.png" alt="ศูนย์การแพทย์รามาธิบดีศรีอยุธยา" />
+      <div class="clock">
+        <div id="time" class="time">--:--</div>
+        <div id="date" class="date"></div>
+      </div>
+    </header>
+
+    <h1 id="room" class="room"></h1>
+
+    <section id="hero" class="hero is-idle">
+      <div class="hero-art"></div>
+      <div id="heroBody" class="hero-body"></div>
+    </section>
+
+    <section id="agenda" class="agenda"></section>
+
+    <footer class="foot">
+      <div class="qr"><img src="qrcode.svg" alt="QR Code สำหรับจองห้องประชุม" /></div>
+      <div class="foot-text">
+        <div class="foot-cta">สแกนเพื่อจองห้องประชุม</div>
+        <div class="foot-tag">สุขภาพที่ยืนยาว คือความสุขที่ยั่งยืน</div>
+      </div>
+      <div id="stale" class="stale is-hidden">อัปเดตไม่สำเร็จ</div>
+    </footer>
+  </div>
+
+  <script>
+    var ROOM_NAME = "ห้องประชุม 501";
+    var API_URL = "https://default03c56608515c49f3b2e42aad4e09c8.ce.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c6a09f6c1d24428c8d89b922c072069a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KxTz_WCDQkhg9JBVXQb4yuKOXuq76lMEveJsUTyifOs&room=ห้องประชุม 501";
+    var API_KEY = "kSbQY970ZbEUphoj3XJC8TO9bemtxH2O";
+
+    var QUOTES = [
+      "สุขภาพดีไม่มีขาย อยากได้ต้องสร้างเองทุกวัน",
+      "ออกกำลังกายวันละนิด สุขภาพจิตก็ดีตาม",
+      "พักผ่อนให้พอ แล้วพรุ่งนี้จะพร้อมสำหรับทุกสิ่ง",
+      "กินอาหารเป็นยา ดีกว่ากินยาเป็นอาหาร",
+      "ยิ้มบ่อย ๆ หัวใจก็แข็งแรงตาม",
+      "น้ำเปล่าคือเพื่อนแท้ของร่างกาย",
+      "การนอนคือการชาร์จพลังชีวิต",
+      "เครียดน้อยลง หัวใจก็เต้นเป็นจังหวะที่สวยงามขึ้น",
+      "กายแข็งแรง จิตใจเบิกบาน ชีวิตก็สดใส",
+      "เดินช้าแต่สม่ำเสมอ ดีกว่าวิ่งแล้วล้ม",
+      "สุขภาพใจ สำคัญไม่แพ้สุขภาพกาย",
+      "อย่ารอให้ป่วยแล้วค่อยดูแลตัวเอง",
+      "ชีวิตดีขึ้นทันที เมื่อเริ่มรักตัวเอง",
+      "การดูแลสุขภาพไม่ใช่เทรนด์ แต่คือการลงทุนระยะยาว",
+      "ออกกำลังกายไม่ได้ทำให้เหนื่อย แต่ทำให้แข็งแรง",
+      "หายใจลึก ๆ แล้วใช้ชีวิตอย่างมีสติ",
+      "สุขภาพคือของขวัญที่ให้ตัวเองได้ทุกวัน",
+      "ความสุขเริ่มที่ใจดี และร่างกายที่พร้อม",
+      "ใส่ใจอาหารทุกคำ คือความรักที่ให้ตัวเอง",
+      "ความเจ็บป่วยบางอย่างป้องกันได้ ด้วยการเปลี่ยนนิสัยวันนี้",
+      "ไม่ต้องดีที่สุด แค่ดูแลตัวเองให้ดีขึ้นทุกวันก็พอ",
+      "หยุดพักไม่ได้แปลว่าแพ้ แต่แปลว่ากำลังชาร์จพลัง",
+      "กินน้อยลง เคลื่อนไหวมากขึ้น แล้วร่างกายจะขอบคุณคุณ",
+      "สุขภาพดี เริ่มที่ความตั้งใจจริง",
+      "ใจที่สงบ เป็นยารักษาโรคชั้นดี",
+      "อย่ารอให้สุขภาพเตือน ถึงเริ่มเปลี่ยนพฤติกรรม",
+      "เสียงหัวเราะคือวิตามินของชีวิต",
+      "การดูแลสุขภาพ คือการแสดงความเคารพต่อตัวเอง",
+      "เริ่มต้นวันใหม่ด้วยน้ำหนึ่งแก้ว และความคิดดีหนึ่งอย่าง",
+      "ไม่ต้องรีบ แต่ต้องเริ่ม",
+      "เคลื่อนไหวร่างกายทุกวัน คือความกรุณาที่มีต่อตัวเอง",
+      "นอนเร็ว ตื่นเช้า สุขภาพยืนยาว",
+      "เลือกอาหารคือเลือกอนาคตของร่างกาย",
+      "ร่างกายเราคือบ้านหลังแรก อย่าปล่อยให้ทรุดโทรม",
+      "จงฟังเสียงของร่างกาย ก่อนที่มันจะตะโกน",
+      "อากาศดี อาหารดี ความคิดดี ชีวิตก็ดีตาม",
+      "การเดินเร็ววันละ 30 นาที ดีกว่านั่งทั้งวัน",
+      "รักตัวเอง คือการดูแลสุขภาพด้วยความตั้งใจ",
+      "ความเครียดไม่เคยช่วยให้สุขภาพดีขึ้น",
+      "รอยยิ้มคือยาฟรี ที่ไม่มีผลข้างเคียง",
+      "ใจดีต่อคนอื่น เริ่มจากใจดีต่อตัวเองก่อน",
+      "ท่ามกลางความวุ่นวาย สุขภาพคือฐานมั่นคงที่สุด",
+      "ดื่มน้ำเมื่อกระหาย พักผ่อนเมื่อเหนื่อย",
+      "ลดหวาน ลดเค็ม เพิ่มชีวิต",
+      "ร่างกายแข็งแรง คือทุนที่ไม่มีใครแย่งได้",
+      "ตื่นเช้ารับแสงแดด ร่างกายได้วิตามิน ใจได้พลัง",
+      "ความมั่งคั่งจริง ๆ คือการมีสุขภาพที่ดี",
+      "สุขภาพที่ดี สร้างได้ด้วยการเลือกในแต่ละวัน",
+      "ใช้ชีวิตให้สมดุล แล้วสุขภาพจะสมบูรณ์",
+      "หายใจให้ลึก ยิ้มให้กว้าง แล้วเดินหน้าต่อไป"
+    ];
+    var FIXED_QUOTE = "Longer healthy life at your full potential.";
+
+    var TH_DAYS = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+    var TH_DAYS_SHORT = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+    var TH_MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    var TH_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+    var bookings = null;   // last good API payload
+    var loadFailed = false;
+    var inFlight = null;
+    var inFlightAt = 0;
+    var quote = "";
+    var lastMinute = "";
+
+    function $(id) { return document.getElementById(id); }
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+    function hm(min) { return pad(Math.floor(min / 60) % 24) + ":" + pad(min % 60); }
+    function toMin(t) {
+      var p = String(t).split(":");
+      return parseInt(p[0], 10) * 60 + parseInt(p[1], 10);
+    }
+    function str(v) { return v == null ? "" : String(v).replace(/^\s+|\s+$/g, ""); }
+    function esc(v) {
+      return str(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function thaiDate(d) {
+      return TH_DAYS[d.getDay()] + " " + d.getDate() + " " + TH_MONTHS[d.getMonth()] + " " + (d.getFullYear() + 543);
+    }
+    function dayLabel(date, now) {
+      var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      if (date === ymd(now)) return "วันนี้";
+      if (date === ymd(tomorrow)) return "พรุ่งนี้";
+      var p = date.split("-");
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      return TH_DAYS_SHORT[d.getDay()] + ". " + d.getDate() + " " + TH_MONTHS_SHORT[d.getMonth()];
+    }
+    function duration(min) {
+      if (min < 60) return min + " นาที";
+      return Math.floor(min / 60) + " ชม." + (min % 60 ? " " + (min % 60) + " นาที" : "");
+    }
+
+    function pickQuote(now) {
+      var m = now.getMinutes();
+      quote = (m % 15 === 0) ? FIXED_QUOTE : QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    }
+
+    // Not-yet-ended bookings, sorted; b.now = in progress.
+    function upcoming(now) {
+      var today = ymd(now);
+      var nowMin = now.getHours() * 60 + now.getMinutes();
+      var out = [];
+      for (var i = 0; i < bookings.length; i++) {
+        var b = bookings[i] || {};
+        var date = str(b.date).slice(0, 10);
+        var s = toMin(b.start), e = toMin(b.end);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(s) || isNaN(e)) continue;
+        if (e <= s) e = 24 * 60; // e.g. "23:00"-"00:00"
+        if (date < today || (date === today && e <= nowMin)) continue;
+        out.push({ date: date, s: s, e: e, title: b.title, count: b.count, by: b.by,
+                   now: date === today && s <= nowMin });
+      }
+      out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.s - b.s; });
+      return out;
+    }
+
+    function titleHTML(b) { return esc(b.title) || "ไม่ระบุหัวข้อ"; }
+    function metaHTML(b, cls) {
+      var count = str(b.count), by = str(b.by), html = "";
+      if (count) html += "<span>ผู้เข้าร่วม <b>" + esc(count) + (/^\d+$/.test(count) ? " คน" : "") + "</b></span>";
+      if (by) html += "<span>ผู้จอง <b>" + esc(by) + "</b></span>";
+      return html ? '<div class="' + cls + '">' + html + "</div>" : "";
+    }
+
+    function renderFree(next) {
+      var card = next
+        ? '<div class="next-until">ว่างถึง ' + hm(next.s) + "</div>" +
+          '<div class="next-row"><div class="next-when"><div class="next-label">ถัดไป</div>' +
+          '<div class="next-time">' + hm(next.s) + " – " + hm(next.e) + "</div></div>" +
+          '<div class="next-title">' + titleHTML(next) + "</div></div>"
+        : '<div class="next-until">ว่างทั้งวัน</div><div class="next-sub">ไม่มีการจองต่อจากนี้ในวันนี้</div>';
+      $("hero").className = "hero is-free";
+      $("heroBody").innerHTML = '<div class="free-word">ว่าง</div><div class="next">' + card + "</div>" +
+        '<p class="quote">“' + esc(quote) + "”</p>";
+    }
+
+    function renderBusy(b, now) {
+      var nowMin = now.getHours() * 60 + now.getMinutes();
+      var pct = Math.max(0, Math.min(100, (nowMin - b.s) / Math.max(1, b.e - b.s) * 100));
+      $("hero").className = "hero is-busy";
+      $("heroBody").innerHTML =
+        '<div class="busy-label"><i class="dot"></i>กำลังประชุม</div>' +
+        '<h2 id="busyTitle" class="busy-title">' + titleHTML(b) + "</h2>" +
+        '<div id="busyFoot" class="busy-foot">' +
+          '<div class="busy-when"><span class="busy-time">' + hm(b.s) + " – " + hm(b.e) + "</span>" +
+          '<span class="busy-left">เหลืออีก ' + duration(b.e - nowMin) + "</span></div>" +
+          '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
+          metaHTML(b, "busy-meta") +
+        "</div>";
+      // Shrink long titles until they clear the footer block; clip whole lines as a last resort.
+      var t = $("busyTitle"), limit = $("busyFoot").offsetTop - 40, size = 100;
+      t.style.fontSize = size + "px";
+      while (size > 48 && t.offsetTop + t.offsetHeight > limit) {
+        size -= 4;
+        t.style.fontSize = size + "px";
+      }
+      if (t.offsetTop + t.offsetHeight > limit) {
+        var line = size * 1.3;
+        t.style.maxHeight = Math.floor((limit - t.offsetTop) / line) * line + "px";
+      }
+    }
+
+    function renderIdle() {
+      $("hero").className = "hero is-idle";
+      $("heroBody").innerHTML = loadFailed
+        ? '<div class="idle"><div class="idle-title">โหลดตารางจองไม่สำเร็จ</div>' +
+          '<div class="idle-sub">ระบบจะลองใหม่อัตโนมัติทุก 1 นาที<br />ระหว่างนี้สแกน QR ด้านล่างเพื่อดูและจองห้อง</div></div>'
+        : '<div class="idle"><div class="idle-title">กำลังโหลดตารางจอง…</div></div>';
+    }
+
+    function agendaHTML(items, n, now) {
+      var html = "", day = null;
+      for (var i = 0; i < n; i++) {
+        var b = items[i];
+        if (b.date !== day) {
+          html += (day === null ? "" : "</div>") + '<div class="group"><div class="group-head">' + dayLabel(b.date, now) + "</div>";
+          day = b.date;
+        }
+        html += '<div class="item' + (b.now ? " is-now" : "") + '">' +
+          '<div class="item-time">' + hm(b.s) + "<small>" + hm(b.e) + "</small></div>" +
+          '<div class="item-rail"></div>' +
+          '<div class="item-body"><div class="item-title">' + (b.now ? '<span class="tag">กำลังประชุม</span>' : "") +
+          titleHTML(b) + "</div>" + metaHTML(b, "item-meta") + "</div></div>";
+      }
+      html += "</div>";
+      if (n < items.length) html += '<div class="more">+ อีก ' + (items.length - n) + " รายการ</div>";
+      return html;
+    }
+
+    function renderAgenda(items, now) {
+      var el = $("agenda");
+      if (!items.length) {
+        el.innerHTML = '<div class="empty">ไม่มีการจองถัดไป</div>';
+        return;
+      }
+      // ponytail: re-lays out once per dropped item; fine for a room's handful of bookings.
+      for (var n = items.length; n > 0; n--) {
+        el.innerHTML = agendaHTML(items, n, now);
+        if (el.scrollHeight <= el.clientHeight) return;
+      }
+    }
+
+    function render() {
+      var now = new Date();
+      $("stale").className = bookings && loadFailed ? "stale" : "stale is-hidden";
+      if (!bookings) {
+        renderIdle();
+        $("agenda").innerHTML = "";
+        return;
+      }
+      var items = upcoming(now), current = null, next = null, rest = [], i;
+      for (i = 0; i < items.length; i++) {
+        if (items[i].now && (!current || items[i].e < current.e)) current = items[i];
+      }
+      for (i = 0; i < items.length; i++) {
+        if (items[i] === current) continue;
+        if (!next && items[i].date === ymd(now)) next = items[i];
+        rest.push(items[i]);
+      }
+      if (current) renderBusy(current, now);
+      else renderFree(next);
+      renderAgenda(rest, now);
+    }
+
+    function load() {
+      if (inFlight) return;
+      var xhr = new XMLHttpRequest();
+      inFlight = xhr;
+      inFlightAt = new Date().getTime();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4 || inFlight !== xhr) return;
+        inFlight = null;
+        var data = null;
+        if (xhr.status === 200) {
+          try { data = JSON.parse(xhr.responseText); } catch (e) { data = null; }
+        }
+        if (Object.prototype.toString.call(data) === "[object Array]") {
+          bookings = data;
+          loadFailed = false;
+        } else {
+          loadFailed = true;
+        }
+        render();
+      };
+      try {
+        xhr.open("POST", API_URL, true);
+        xhr.setRequestHeader("x-api-key", API_KEY);
+        xhr.send(null);
+      } catch (err) {
+        inFlight = null;
+        loadFailed = true;
+        render();
+      }
+    }
+
+    function tick() {
+      var now = new Date();
+      var t = pad(now.getHours()) + ":" + pad(now.getMinutes());
+      $("time").innerHTML = t;
+      if (ymd(now) + t === lastMinute) return;
+      var first = lastMinute === "";
+      lastMinute = ymd(now) + t;
+      $("date").innerHTML = thaiDate(now);
+      if (first || now.getMinutes() % 5 === 0) pickQuote(now);
+      if (inFlight && now.getTime() - inFlightAt > 50000) { // hung request: drop it and retry
+        var stuck = inFlight;
+        inFlight = null;
+        try { stuck.abort(); } catch (e) {}
+        loadFailed = true;
+      }
+      if (first || now.getMinutes() % 15 === 0 || loadFailed) load();
+      render();
+    }
+
+    // Fit the 1080x1920 stage to the screen. ?rotate=90|270 for landscape output on a portrait-mounted panel.
+    var ROTATE = (function () {
+      var m = /[?&]rotate=(90|270)(&|$)/.exec(location.search);
+      return m ? parseInt(m[1], 10) : 0;
+    })();
+    function fitStage() {
+      var w = window.innerWidth || document.documentElement.clientWidth;
+      var h = window.innerHeight || document.documentElement.clientHeight;
+      var s = ROTATE ? Math.min(w / 1920, h / 1080) : Math.min(w / 1080, h / 1920);
+      var tf = (ROTATE ? "rotate(" + ROTATE + "deg) " : "") + "scale(" + s + ")";
+      var st = $("stage").style;
+      st.webkitTransform = tf;
+      st.msTransform = tf;
+      st.transform = tf;
+    }
+
+    document.title = ROOM_NAME + " · ตารางจองห้องประชุม";
+    $("room").innerHTML = esc(ROOM_NAME);
+    fitStage();
+    window.onresize = fitStage;
+    tick();
+    setInterval(tick, 1000);
+    // Re-fit title/list once web fonts arrive (metrics change).
+    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", render);
+    window.onload = render;
+  </script>
+</body>
+</html>
