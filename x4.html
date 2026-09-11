@@ -10,7 +10,9 @@
   <style>
     /* Ramasri hues, deepened for TV panels (brand pastels: leaf #8cbaa3, teal #669283, sage #c8e0d3,
        mint #e5efe2, forest #3a5356, healing #e2be76, care #c98f7f).
-       header band #bfdcc9 on a white sheet, ink #13302f, ink-2 #284441, hero green #147a4c (free + busy), text on green #fff, gold #ffd166 */
+       header band #bfdcc9 on a white sheet, ink #13302f, ink-2 #284441, hero green #147a4c (free + busy), text on green #fff, gold #ffd166
+       Motif: Ramasri ribbon pinwheel (assets/ramasri-pinwheel.png, mint #e5efe2 on transparent), cropped off-edge.
+       Motion: transform/opacity only; ?motion=0 or prefers-reduced-motion adds body.no-motion (all static). */
     html, body {
       margin: 0;
       padding: 0;
@@ -32,6 +34,7 @@
     /* Design stage, scaled + centred by fitStage(): 1080x1920 portrait, 1920x1080 with body.is-land */
     #stage {
       position: absolute;
+      z-index: 0; /* own stacking context: .sheet-art (z -1) sits above the white, below the content */
       left: 50%;
       top: 50%;
       width: 1080px;
@@ -45,9 +48,25 @@
       -ms-transform-origin: 50% 50%;
       transform-origin: 50% 50%;
     }
+    /* faint mint pinwheel cut by the sheet's bottom-right corner (portrait: tucked behind the footer band);
+       mint #e5efe2 keeps ink-2 text 8.9:1 */
+    .sheet-art {
+      position: absolute;
+      z-index: -1;
+      right: 0;
+      bottom: 0;
+      width: 560px;
+      height: 560px;
+      background: url(assets/ramasri-pinwheel.png) no-repeat 0 0;
+      background-size: 760px 760px;
+    }
 
-    /* 1. header */
-    .top, .room { background: #bfdcc9; } /* sage header band; everything below sits on white */
+    /* 1. header: sage band with a faint pinwheel behind the clock (mint is lighter than sage, so ink contrast only rises) */
+    .top, .room {
+      background: #bfdcc9 url(assets/ramasri-pinwheel.png) no-repeat 700px -150px;
+      background-size: 600px 600px;
+    }
+    .room { background-position: 700px -314px; } /* continues the motif from .top (164px tall) */
     .top {
       position: relative;
       height: 164px;
@@ -70,6 +89,10 @@
       font-weight: 600;
       line-height: 1;
       letter-spacing: -1px;
+    }
+    .colon { /* opacity only: the digits never shift */
+      -webkit-animation: blink 1s linear infinite;
+      animation: blink 1s linear infinite;
     }
     .date {
       margin-top: 10px;
@@ -103,28 +126,60 @@
       background: #a3c9b3;
       border-bottom-right-radius: 200px;
     }
-    .hero.is-free, .hero.is-busy { /* one primary green; states differ only by content */
-      background: #147a4c;
-      background: -webkit-linear-gradient(top right, #22955f 0%, #147a4c 10%);
-      background: linear-gradient(to bottom left, #22955f 0%, #147a4c 10%);
-    }
+    .hero.is-free, .hero.is-busy { background: #147a4c; } /* one primary green; states differ only by content */
     .hero.is-idle { color: #13302f; }
-    .hero-art {
+    /* aurora: oversized equal-luminance hue gradient (deep green / brand / emerald / teal-green), moved by transform only.
+       Lightest stop #147a4c keeps white text >=4.6:1 even under the pinwheel. */
+    .hero-aurora {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 150%;
+      height: 150%;
+      opacity: 0;
+      background: #147a4c;
+      background: -webkit-linear-gradient(-30deg, #15783a 0%, #147a4c 25%, #0d7751 50%, #0c7661 75%, #147a4c 100%);
+      background: linear-gradient(120deg, #15783a 0%, #147a4c 25%, #0d7751 50%, #0c7661 75%, #147a4c 100%);
+      -webkit-transition: opacity 1s ease;
+      transition: opacity 1s ease;
+      -webkit-animation: aurora 20s ease-in-out infinite;
+      animation: aurora 20s ease-in-out infinite;
+      will-change: transform;
+    }
+    .is-free .hero-aurora, .is-busy .hero-aurora { opacity: 1; }
+    .is-idle .hero-aurora { -webkit-animation-play-state: paused; animation-play-state: paused; }
+    .hero-art { /* big pinwheel, centred near the top-right and cut by the hero edges; one turn per 120s */
+      position: absolute;
+      right: -380px;
+      top: -330px;
+      width: 1000px;
+      height: 1000px;
+      background: url(assets/ramasri-pinwheel.png) no-repeat;
+      background-size: 100% 100%;
+      opacity: .09; /* mint at 9%: white text >=4.6:1 on the lightest aurora stop */
+      -webkit-animation: spin 120s linear infinite;
+      animation: spin 120s linear infinite;
+      will-change: transform;
+    }
+    .hero-body {
+      position: relative;
+      height: 100%;
+    }
+    .is-free .hero-body, .is-busy .hero-body { /* static light corner (no text reaches it) */
+      background: -webkit-linear-gradient(top right, #22955f 0%, rgba(34, 149, 95, 0) 10%);
+      background: linear-gradient(to bottom left, #22955f 0%, rgba(34, 149, 95, 0) 10%);
+    }
+    .hero-view { /* one per state; a new view crossfades over the old one */
       position: absolute;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
-      background: url(assets/curve-arcs.png) no-repeat 100% 0;
-      background-size: cover;
-      opacity: .2; /* keeps white title text >=4.5:1 where it crosses the arcs */
-    }
-    .hero-body {
-      position: relative;
-      height: 100%;
       padding: 44px 72px 48px;
       box-sizing: border-box;
     }
+    .is-in { -webkit-animation: fade-in .9s ease-out backwards; animation: fade-in .9s ease-out backwards; }
+    .is-out { -webkit-animation: fade-out .9s ease-in forwards; animation: fade-out .9s ease-in forwards; }
 
     /* FREE */
     .free-word {
@@ -206,6 +261,7 @@
       color: #fff;
     }
     .dot {
+      position: relative;
       display: inline-block;
       width: 20px;
       height: 20px;
@@ -213,11 +269,20 @@
       vertical-align: middle;
       border-radius: 50%;
       background: #ffd166;
-      -webkit-animation: pulse 2.4s ease-in-out infinite;
-      animation: pulse 2.4s ease-in-out infinite;
     }
-    @-webkit-keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+    .dot:after, .ring { /* breathing ring */
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #ffd166;
+      opacity: 0;
+      -webkit-animation: ring 2.4s ease-out infinite;
+      animation: ring 2.4s ease-out infinite;
+    }
     .busy-title {
       margin: 12px 0 0;
       overflow: hidden;
@@ -246,10 +311,26 @@
       background: rgba(0, 0, 0, .22);
     }
     .bar i {
+      position: relative;
       display: block;
       height: 100%;
+      overflow: hidden;
       border-radius: 8px;
       background: #ffd166;
+    }
+    .bar i:after { /* light sweep every 4s */
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .65) 50%, rgba(255, 255, 255, 0) 70%);
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .65) 50%, rgba(255, 255, 255, 0) 70%);
+      -webkit-transform: translate3d(-100%, 0, 0);
+      transform: translate3d(-100%, 0, 0);
+      -webkit-animation: shimmer 4s ease-in-out infinite;
+      animation: shimmer 4s ease-in-out infinite;
     }
     .busy-meta {
       font-size: 30px;
@@ -285,6 +366,10 @@
       height: 100%;
       overflow: hidden;
     }
+    .rise { /* staggered fade-up; rows are only rebuilt when the data changes */
+      -webkit-animation: rise .7s ease-out backwards;
+      animation: rise .7s ease-out backwards;
+    }
     .group + .group { margin-top: 14px; }
     .group-head {
       margin-bottom: 10px;
@@ -295,6 +380,12 @@
     .item {
       display: -webkit-flex;
       display: flex;
+    }
+    .item.is-now { /* mint tint band: ink-2 text 8.9:1 */
+      margin: 0 -16px;
+      padding: 10px 16px 0;
+      border-radius: 18px;
+      background: #e5efe2;
     }
     .item-time {
       width: 132px;
@@ -326,8 +417,10 @@
       width: 4px;
       background: #a3c9b3;
     }
+    .is-now .item-rail:before { top: -10px; } /* bridge the band's top padding */
     .item:first-child .item-rail:before { top: 22px; }
     .item:last-child .item-rail:before { bottom: auto; height: 22px; }
+    .item.is-now:last-child .item-rail:before { height: 32px; }
     .item:first-child:last-child .item-rail:before { display: none; }
     .item-rail:after {
       content: "";
@@ -341,6 +434,13 @@
       background: #147a4c;
     }
     .is-now .item-rail:after { background: #e0a93b; }
+    .item-rail .ring {
+      left: 16px;
+      top: 12px;
+      width: 28px;
+      height: 28px;
+      background: #e0a93b;
+    }
     .item-body {
       -webkit-flex: 1;
       flex: 1;
@@ -391,12 +491,12 @@
       color: #284441;
     }
 
-    /* 5. footer */
+    /* 5. footer: full-width mint-grey band (ink-2 text 9.3:1), white tile behind the QR */
     .foot {
       position: relative;
       height: 180px;
-      margin: 0 72px;
-      border-top: 2px solid #d3e5da;
+      padding: 0 72px;
+      background: #ebf3ee;
       box-sizing: border-box;
       display: -webkit-flex;
       display: flex;
@@ -411,6 +511,7 @@
       flex: none;
       border: 2px solid #d3e5da;
       border-radius: 20px;
+      background: #fff;
     }
     .qr img {
       display: block;
@@ -431,7 +532,7 @@
     }
     .stale {
       position: absolute;
-      right: 0;
+      right: 72px;
       bottom: 22px;
       font-size: 22px;
       line-height: 1.4;
@@ -454,7 +555,10 @@
       height: 1080px;
       margin: -540px 0 0 -960px;
     }
-    .is-land .top { height: 150px; }
+    .is-land .top {
+      height: 150px;
+      background-position: 1480px -210px;
+    }
     .is-land .logo { top: 33px; }
     .is-land .clock { top: 18px; }
     .is-land .room {
@@ -465,11 +569,13 @@
       height: 84px;
       padding: 0 0 0 44px;
       border-left: 3px solid #88b89d;
+      background: none; /* sits on .top's motif */
       font-size: 60px;
       line-height: 84px;
     }
     .is-land .hero {
       position: absolute;
+      z-index: 1; /* above the footer band, whose top tucks under the rounded corner */
       left: 0;
       top: 150px;
       width: 960px;
@@ -494,26 +600,82 @@
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
-    .is-land .foot {
+    .is-land .foot { /* left-half band; starts 200px up behind the hero so its rounded corner sits on the tint */
       position: absolute;
-      left: 72px;
-      top: 900px;
-      width: 816px;
-      margin: 0;
-      border-top: 0;
+      left: 0;
+      top: 700px;
+      width: 960px;
+      height: 380px;
+      padding-top: 200px;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .dot { -webkit-animation: none; animation: none; }
+    @-webkit-keyframes aurora {
+      0%, 100% { -webkit-transform: translate3d(0, 0, 0); }
+      33% { -webkit-transform: translate3d(-30%, -8%, 0); }
+      66% { -webkit-transform: translate3d(-12%, -30%, 0); }
     }
+    @keyframes aurora {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      33% { transform: translate3d(-30%, -8%, 0); }
+      66% { transform: translate3d(-12%, -30%, 0); }
+    }
+    @-webkit-keyframes spin { from { -webkit-transform: rotate(0deg); } to { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @-webkit-keyframes ring {
+      0% { opacity: .55; -webkit-transform: scale(1); }
+      80%, 100% { opacity: 0; -webkit-transform: scale(2.4); }
+    }
+    @keyframes ring {
+      0% { opacity: .55; transform: scale(1); }
+      80%, 100% { opacity: 0; transform: scale(2.4); }
+    }
+    @-webkit-keyframes shimmer {
+      0% { -webkit-transform: translate3d(-100%, 0, 0); }
+      45%, 100% { -webkit-transform: translate3d(100%, 0, 0); }
+    }
+    @keyframes shimmer {
+      0% { transform: translate3d(-100%, 0, 0); }
+      45%, 100% { transform: translate3d(100%, 0, 0); }
+    }
+    @-webkit-keyframes blink {
+      0%, 40%, 100% { opacity: 1; }
+      50%, 90% { opacity: .25; }
+    }
+    @keyframes blink {
+      0%, 40%, 100% { opacity: 1; }
+      50%, 90% { opacity: .25; }
+    }
+    @-webkit-keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @-webkit-keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+    @-webkit-keyframes rise {
+      from { opacity: 0; -webkit-transform: translate3d(0, 20px, 0); }
+      to { opacity: 1; -webkit-transform: translate3d(0, 0, 0); }
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translate3d(0, 20px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    /* ?motion=0 / prefers-reduced-motion: everything static (aurora + pinwheel rest at their start pose) */
+    .no-motion *, .no-motion *:before, .no-motion *:after {
+      -webkit-animation: none !important;
+      animation: none !important;
+      -webkit-transition: none !important;
+      transition: none !important;
+      will-change: auto !important;
+    }
+    .no-motion .ring, .no-motion .dot:after, .no-motion .bar i:after { display: none; }
   </style>
 </head>
 <body>
   <div id="stage">
+    <div class="sheet-art"></div>
     <header class="top">
       <img class="logo" src="assets/ramasri-logo.png" alt="ศูนย์การแพทย์รามาธิบดีศรีอยุธยา" />
       <div class="clock">
-        <div id="time" class="time">--:--</div>
+        <div id="time" class="time"><span id="hh">--</span><span class="colon">:</span><span id="mm">--</span></div>
         <div id="date" class="date"></div>
       </div>
     </header>
@@ -521,6 +683,7 @@
     <h1 id="room" class="room"></h1>
 
     <section id="hero" class="hero is-idle">
+      <div class="hero-aurora"></div>
       <div class="hero-art"></div>
       <div id="heroBody" class="hero-body"></div>
     </section>
@@ -601,12 +764,19 @@
     var TH_MONTHS = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
     var TH_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
 
+    // Motion off for ?motion=0, prefers-reduced-motion, or browsers without CSS animations (crossfades then swap instantly).
+    var MOTION = !/[?&]motion=0(&|$)/.test(location.search) &&
+      !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) &&
+      ("animation" in document.documentElement.style || "webkitAnimation" in document.documentElement.style);
+
     var bookings = null;   // last good API payload
     var loadFailed = false;
     var inFlight = null;
     var inFlightAt = 0;
     var quote = "";
     var lastMinute = "";
+    // Hero view / quote / agenda are rebuilt only when their content changes, so running animations never restart.
+    var heroKey = "", heroView = null, quoteEl = null, shownQuote = null, agendaSig = null;
 
     function $(id) { return document.getElementById(id); }
     function pad(n) { return (n < 10 ? "0" : "") + n; }
@@ -665,6 +835,35 @@
       return html ? '<div class="' + cls + '">' + html + "</div>" : "";
     }
 
+    function drop(el) { if (el && el.parentNode) el.parentNode.removeChild(el); }
+    // Insert el in front of old (so queries find the new one first), fade old out over it, then remove old.
+    function crossfade(parent, el, old) {
+      for (var i = parent.children.length - 1; i >= 0; i--) { // leftovers of an unfinished crossfade
+        if (/\bis-out\b/.test(parent.children[i].className)) drop(parent.children[i]);
+      }
+      if (old && old.parentNode !== parent) old = null;
+      parent.insertBefore(el, old);
+      if (!old) return;
+      if (!MOTION) return drop(old);
+      old.className += " is-out";
+      var done = function (e) { if (e.target === old) drop(old); };
+      old.addEventListener("animationend", done, false);
+      old.addEventListener("webkitAnimationEnd", done, false);
+    }
+
+    function showHero(cls, html) { // true when the view was rebuilt
+      if (cls + html === heroKey) return false;
+      heroKey = cls + html;
+      $("hero").className = "hero " + cls;
+      var v = document.createElement("div");
+      v.className = "hero-view is-in";
+      v.innerHTML = html;
+      crossfade($("heroBody"), v, heroView);
+      heroView = v;
+      quoteEl = shownQuote = null;
+      return true;
+    }
+
     function renderFree(next) {
       var card = next
         ? '<div class="next-until">ว่างถึง ' + hm(next.s) + "</div>" +
@@ -672,25 +871,35 @@
           '<div class="next-time">' + hm(next.s) + " – " + hm(next.e) + "</div></div>" +
           '<div class="next-title">' + titleHTML(next) + "</div></div>"
         : '<div class="next-until">ว่างทั้งวัน</div><div class="next-sub">ไม่มีการจองต่อจากนี้ในวันนี้</div>';
-      $("hero").className = "hero is-free";
-      $("heroBody").innerHTML = '<div class="free-word">ว่าง</div><div class="next">' + card + "</div>" +
-        '<p class="quote">“' + esc(quote) + "”</p>";
+      showHero("is-free", '<div class="free-word">ว่าง</div><div class="next">' + card + "</div>");
+      if (quote === shownQuote) return;
+      shownQuote = quote;
+      var p = document.createElement("p");
+      p.className = quoteEl ? "quote is-in" : "quote"; // a fresh view already fades in as a whole
+      p.innerHTML = "“" + esc(quote) + "”";
+      crossfade(heroView, p, quoteEl);
+      quoteEl = p;
     }
 
-    function renderBusy(b, now) {
+    function renderBusy(b, now, force) {
       var nowMin = now.getHours() * 60 + now.getMinutes();
       var pct = Math.max(0, Math.min(100, (nowMin - b.s) / Math.max(1, b.e - b.s) * 100));
-      $("hero").className = "hero is-busy";
-      $("heroBody").innerHTML =
-        '<div class="busy-label"><i class="dot"></i>กำลังประชุม</div>' +
-        '<h2 id="busyTitle" class="busy-title">' + titleHTML(b) + "</h2>" +
-        '<div id="busyFoot" class="busy-foot">' +
-          '<div class="busy-when">' + hm(b.s) + " – " + hm(b.e) + "</div>" +
-          '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
-          metaHTML(b, "busy-meta") +
-        "</div>";
-      // Shrink long titles until they clear the footer block; clip whole lines as a last resort.
-      var t = $("busyTitle"), limit = $("busyFoot").offsetTop - 32, size = 68;
+      if (showHero("is-busy",
+          '<div class="busy-label"><i class="dot"></i>กำลังประชุม</div>' +
+          '<h2 class="busy-title">' + titleHTML(b) + "</h2>" +
+          '<div class="busy-foot">' +
+            '<div class="busy-when">' + hm(b.s) + " – " + hm(b.e) + "</div>" +
+            '<div class="bar"><i></i></div>' +
+            metaHTML(b, "busy-meta") +
+          "</div>") || force) fitTitle();
+      heroView.querySelector(".bar i").style.width = pct.toFixed(1) + "%"; // in place: shimmer keeps running
+    }
+
+    // Shrink long titles until they clear the footer block; clip whole lines as a last resort.
+    function fitTitle() {
+      var t = heroView.querySelector(".busy-title");
+      var limit = heroView.querySelector(".busy-foot").offsetTop - 32, size = 68;
+      t.style.maxHeight = "";
       t.style.fontSize = size + "px";
       while (size > 40 && t.offsetTop + t.offsetHeight > limit) {
         size -= 4;
@@ -703,36 +912,42 @@
     }
 
     function renderIdle() {
-      $("hero").className = "hero is-idle";
-      $("heroBody").innerHTML = loadFailed
+      showHero("is-idle", loadFailed
         ? '<div class="idle"><div class="idle-title">โหลดตารางจองไม่สำเร็จ</div>' +
           '<div class="idle-sub">ระบบจะลองใหม่อัตโนมัติทุก 1 นาที<br />ระหว่างนี้สแกน QR ด้านล่างเพื่อดูและจองห้อง</div></div>'
-        : '<div class="idle"><div class="idle-title">กำลังโหลดตารางจอง…</div></div>';
+        : '<div class="idle"><div class="idle-title">กำลังโหลดตารางจอง…</div></div>');
     }
 
     function agendaHTML(items, n, now) {
-      var html = "", day = null;
+      var html = "", day = null, k = 0;
+      function rise() { // closes the class attribute: fade-up, staggered 80ms per line
+        var s = (k++ * 0.08).toFixed(2) + "s";
+        return ' rise" style="-webkit-animation-delay:' + s + ";animation-delay:" + s + '"';
+      }
       for (var i = 0; i < n; i++) {
         var b = items[i];
         if (b.date !== day) {
-          html += (day === null ? "" : "</div>") + '<div class="group"><div class="group-head">' + dayLabel(b.date, now) + "</div>";
+          html += (day === null ? "" : "</div>") + '<div class="group"><div class="group-head' + rise() + ">" + dayLabel(b.date, now) + "</div>";
           day = b.date;
         }
-        html += '<div class="item' + (b.now ? " is-now" : "") + '">' +
+        html += '<div class="item' + (b.now ? " is-now" : "") + rise() + ">" +
           '<div class="item-time">' + hm(b.s) + "<small>" + hm(b.e) + "</small></div>" +
-          '<div class="item-rail"></div>' +
+          '<div class="item-rail">' + (b.now ? '<i class="ring"></i>' : "") + "</div>" +
           '<div class="item-body"><div class="item-title">' + (b.now ? '<span class="tag">กำลังประชุม</span>' : "") +
           titleHTML(b) + "</div>" + metaHTML(b, "item-meta") + "</div></div>";
       }
       html += "</div>";
-      if (n < items.length) html += '<div class="more">+ อีก ' + (items.length - n) + " รายการ</div>";
+      if (n < items.length) html += '<div class="more' + rise() + ">+ อีก " + (items.length - n) + " รายการ</div>";
       return html;
     }
 
-    function renderAgenda(items, now) {
-      var el = $("agenda");
+    function renderAgenda(items, now, force) {
+      var el = $("agenda"), sig = agendaHTML(items, items.length, now);
+      // Same data: keep the rows (no per-minute flicker); a forced re-fit only rebuilds if the fit may have changed.
+      if (sig === agendaSig && !(force && (el.scrollHeight > el.clientHeight || el.querySelector(".more")))) return;
+      agendaSig = sig;
       if (!items.length) {
-        el.innerHTML = '<div class="empty">ไม่มีการจองถัดไป</div>';
+        el.innerHTML = '<div class="empty rise">ไม่มีการจองถัดไป</div>';
         return;
       }
       // ponytail: re-lays out once per dropped item; fine for a room's handful of bookings.
@@ -742,12 +957,13 @@
       }
     }
 
-    function render() {
+    function render(force) { // force: re-fit after font/orientation changes
       var now = new Date();
       $("stale").className = bookings && loadFailed ? "stale" : "stale is-hidden";
       if (!bookings) {
         renderIdle();
         $("agenda").innerHTML = "";
+        agendaSig = null;
         return;
       }
       var items = upcoming(now), current = null, next = null, rest = [], i;
@@ -759,9 +975,9 @@
         if (!next && items[i].date === ymd(now)) next = items[i];
         rest.push(items[i]);
       }
-      if (current) renderBusy(current, now);
+      if (current) renderBusy(current, now, force);
       else renderFree(next);
-      renderAgenda(rest, now);
+      renderAgenda(rest, now, force);
     }
 
     function load() {
@@ -798,10 +1014,11 @@
     function tick() {
       var now = new Date();
       var t = pad(now.getHours()) + ":" + pad(now.getMinutes());
-      $("time").innerHTML = t;
       if (ymd(now) + t === lastMinute) return;
       var first = lastMinute === "";
       lastMinute = ymd(now) + t;
+      $("hh").innerHTML = pad(now.getHours()); // digits only: the blinking colon is never re-created
+      $("mm").innerHTML = pad(now.getMinutes());
       $("date").innerHTML = thaiDate(now);
       if (first || now.getMinutes() % 5 === 0) pickQuote(now);
       if (inFlight && now.getTime() - inFlightAt > 50000) { // hung request: drop it and retry
@@ -834,19 +1051,19 @@
       st.transform = tf;
       if (isLand === land) return false;
       land = isLand;
-      document.body.className = isLand ? "is-land" : "";
+      document.body.className = (isLand ? "is-land" : "") + (MOTION ? "" : " no-motion");
       return true;
     }
 
     document.title = ROOM_NAME + " · ตารางจองห้องประชุม";
     $("room").innerHTML = esc(ROOM_NAME);
     fitStage();
-    window.onresize = function () { if (fitStage()) render(); };
+    window.onresize = function () { if (fitStage()) render(true); };
     tick();
     setInterval(tick, 1000);
     // Re-fit title/list once web fonts arrive (metrics change).
-    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", render);
-    window.onload = render;
+    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", function () { render(true); });
+    window.onload = function () { render(true); };
   </script>
 </body>
 </html>
