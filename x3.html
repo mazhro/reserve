@@ -10,14 +10,14 @@
   <style>
     /* Ramasri hues, deepened for TV panels (brand pastels: leaf #8cbaa3, teal #669283, sage #c8e0d3,
        mint #e5efe2, forest #3a5356, healing #e2be76, care #c98f7f).
-       page #bfdcc9, ink #13302f, ink-2 #284441, busy #0c4146, free #147a4c, on-dark #d6efe3, gold #f0c66a */
+       header band #bfdcc9 on a white sheet, ink #13302f, ink-2 #284441, hero green #147a4c (free + busy), text on green #fff, gold #ffd166 */
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #bfdcc9;
+      background: #fff; /* letterbox = the white sheet (most of the stage edge) */
     }
     body {
       -webkit-font-smoothing: antialiased;
@@ -38,7 +38,7 @@
       height: 1920px;
       margin: -960px 0 0 -540px;
       overflow: hidden;
-      background: #bfdcc9;
+      background: #fff;
       color: #13302f;
       font-family: 'Sarabun', Tahoma, sans-serif;
       -webkit-transform-origin: 50% 50%;
@@ -47,6 +47,7 @@
     }
 
     /* 1. header */
+    .top, .room { background: #bfdcc9; } /* sage header band; everything below sits on white */
     .top {
       position: relative;
       height: 164px;
@@ -99,15 +100,14 @@
       height: 620px;
       overflow: hidden;
       color: #fff;
-      background: #e5efe2;
+      background: #a3c9b3;
       border-bottom-right-radius: 200px;
     }
-    .hero.is-free {
+    .hero.is-free, .hero.is-busy { /* one primary green; states differ only by content */
       background: #147a4c;
-      background: -webkit-linear-gradient(top right, #22955f 0%, #147a4c 40%);
-      background: linear-gradient(to bottom left, #22955f 0%, #147a4c 40%);
+      background: -webkit-linear-gradient(top right, #22955f 0%, #147a4c 10%);
+      background: linear-gradient(to bottom left, #22955f 0%, #147a4c 10%);
     }
-    .hero.is-busy { background: #0c4146; }
     .hero.is-idle { color: #13302f; }
     .hero-art {
       position: absolute;
@@ -117,7 +117,7 @@
       height: 100%;
       background: url(assets/curve-arcs.png) no-repeat 100% 0;
       background-size: cover;
-      opacity: .35;
+      opacity: .2; /* keeps white title text >=4.5:1 where it crosses the arcs */
     }
     .hero-body {
       position: relative;
@@ -203,7 +203,7 @@
       font-size: 34px;
       font-weight: 500;
       line-height: 1.3;
-      color: #d6efe3;
+      color: #fff;
     }
     .dot {
       display: inline-block;
@@ -212,7 +212,7 @@
       margin: 0 16px 4px 0;
       vertical-align: middle;
       border-radius: 50%;
-      background: #f0c66a;
+      background: #ffd166;
       -webkit-animation: pulse 2.4s ease-in-out infinite;
       animation: pulse 2.4s ease-in-out infinite;
     }
@@ -243,18 +243,18 @@
       margin: 16px 0 20px;
       overflow: hidden;
       border-radius: 8px;
-      background: rgba(255, 255, 255, .2);
+      background: rgba(0, 0, 0, .22);
     }
     .bar i {
       display: block;
       height: 100%;
       border-radius: 8px;
-      background: #f0c66a;
+      background: #ffd166;
     }
     .busy-meta {
       font-size: 30px;
       line-height: 1.4;
-      color: #d6efe3;
+      color: #fff;
     }
     .busy-meta b, .item-meta b { font-weight: 600; }
     .busy-meta b { color: #fff; }
@@ -274,11 +274,15 @@
       line-height: 1.5;
     }
 
-    /* 4. upcoming timeline */
-    .agenda {
+    /* 4. upcoming timeline: fixed box, rows are dropped to fit (never the box) */
+    .panel {
       height: 832px;
-      padding: 32px 72px 0;
+      margin: 0 40px;
+      padding: 36px 32px 20px;
       box-sizing: border-box;
+    }
+    .agenda {
+      height: 100%;
       overflow: hidden;
     }
     .group + .group { margin-top: 14px; }
@@ -320,7 +324,7 @@
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #88b89d;
+      background: #a3c9b3;
     }
     .item:first-child .item-rail:before { top: 22px; }
     .item:last-child .item-rail:before { bottom: auto; height: 22px; }
@@ -332,7 +336,7 @@
       top: 12px;
       width: 18px;
       height: 18px;
-      border: 5px solid #bfdcc9;
+      border: 5px solid #fff;
       border-radius: 50%;
       background: #147a4c;
     }
@@ -357,7 +361,7 @@
       padding: 0 16px;
       vertical-align: 4px;
       border-radius: 20px;
-      background: #0c4146;
+      background: #147a4c;
       color: #fff;
       font-size: 22px;
       font-weight: 500;
@@ -392,7 +396,7 @@
       position: relative;
       height: 180px;
       margin: 0 72px;
-      border-top: 3px solid #88b89d;
+      border-top: 2px solid #d3e5da;
       box-sizing: border-box;
       display: -webkit-flex;
       display: flex;
@@ -405,8 +409,8 @@
       padding: 12px;
       -webkit-flex: none;
       flex: none;
+      border: 2px solid #d3e5da;
       border-radius: 20px;
-      background: #fff;
     }
     .qr img {
       display: block;
@@ -471,14 +475,15 @@
       width: 960px;
       height: 750px;
     }
-    .is-land .agenda {
+    .is-land .panel {
       position: absolute;
-      left: 960px;
-      right: 0;
+      left: 1000px;
+      right: 40px;
       top: 150px;
       bottom: 0;
       height: auto;
-      padding: 40px 72px 0 64px;
+      margin: 0;
+      padding: 44px 32px 36px;
     }
     .is-land .item-title { /* narrower column: allow two lines */
       display: -webkit-box;
@@ -520,7 +525,7 @@
       <div id="heroBody" class="hero-body"></div>
     </section>
 
-    <section id="agenda" class="agenda"></section>
+    <section class="panel"><div id="agenda" class="agenda"></div></section>
 
     <footer class="foot">
       <div class="qr"><img src="qrcode.svg" alt="QR Code สำหรับจองห้องประชุม" /></div>
