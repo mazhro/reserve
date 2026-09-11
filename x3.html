@@ -8,15 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" />
   <style>
-    /* Ramasri palette: leaf #8cbaa3, teal #669283, sage #c8e0d3, mint #e5efe2, forest #3a5356,
-       healing #e2be76, care #c98f7f; #4f6b6a = forest-soft for secondary text on light grounds */
+    /* Ramasri hues, deepened for TV panels (brand pastels: leaf #8cbaa3, teal #669283, sage #c8e0d3,
+       mint #e5efe2, forest #3a5356, healing #e2be76, care #c98f7f).
+       page #bfdcc9, ink #13302f, ink-2 #284441, busy #0c4146, free #147a4c, on-dark #d6efe3, gold #f0c66a */
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #e5efe2;
+      background: #bfdcc9;
     }
     body {
       -webkit-font-smoothing: antialiased;
@@ -28,7 +29,7 @@
     }
     .is-hidden { display: none !important; }
 
-    /* 1080x1920 design stage, scaled + centred by fitStage() */
+    /* Design stage, scaled + centred by fitStage(): 1080x1920 portrait, 1920x1080 with body.is-land */
     #stage {
       position: absolute;
       left: 50%;
@@ -37,8 +38,8 @@
       height: 1920px;
       margin: -960px 0 0 -540px;
       overflow: hidden;
-      background: #e5efe2;
-      color: #3a5356;
+      background: #bfdcc9;
+      color: #13302f;
       font-family: 'Sarabun', Tahoma, sans-serif;
       -webkit-transform-origin: 50% 50%;
       -ms-transform-origin: 50% 50%;
@@ -74,7 +75,7 @@
       font-size: 28px;
       font-weight: 500;
       line-height: 1.3;
-      color: #4f6b6a;
+      color: #284441;
     }
 
     /* 2. room */
@@ -92,23 +93,22 @@
       text-overflow: ellipsis;
     }
 
-    /* 3. status hero (864px = 45%) */
+    /* 3. status hero: same fixed height in every state so the timeline never jumps */
     .hero {
       position: relative;
-      height: 864px;
+      height: 620px;
       overflow: hidden;
       color: #fff;
-      background: #c8e0d3;
+      background: #e5efe2;
       border-bottom-right-radius: 200px;
     }
     .hero.is-free {
-      background: #669283;
-      background: -webkit-linear-gradient(top right, #8cbaa3 0%, #669283 58%);
-      background: linear-gradient(to bottom left, #8cbaa3 0%, #669283 58%);
+      background: #147a4c;
+      background: -webkit-linear-gradient(top right, #22955f 0%, #147a4c 40%);
+      background: linear-gradient(to bottom left, #22955f 0%, #147a4c 40%);
     }
-    .hero.is-busy { background: #3a5356; }
-    .hero.is-idle { color: #3a5356; }
-    .is-idle .hero-art { opacity: .45; }
+    .hero.is-busy { background: #0c4146; }
+    .hero.is-idle { color: #13302f; }
     .hero-art {
       position: absolute;
       left: 0;
@@ -117,59 +117,60 @@
       height: 100%;
       background: url(assets/curve-arcs.png) no-repeat 100% 0;
       background-size: cover;
+      opacity: .35;
     }
     .hero-body {
       position: relative;
       height: 100%;
-      padding: 56px 72px 60px;
+      padding: 44px 72px 48px;
       box-sizing: border-box;
     }
 
     /* FREE */
     .free-word {
-      margin: -6px 0 0 -6px;
-      font-size: 280px;
+      margin: -4px 0 0 -4px;
+      font-size: 168px;
       font-weight: 600;
       line-height: 1.1;
     }
     .next {
-      margin-top: 10px;
-      padding: 34px 44px 38px;
+      margin-top: 6px;
+      padding: 24px 36px 26px;
       background: #fff;
-      color: #3a5356;
-      border-radius: 40px;
+      color: #13302f;
+      border-radius: 32px;
     }
     .next-until {
-      font-size: 60px;
+      font-size: 46px;
       font-weight: 600;
       line-height: 1.25;
     }
     .next-sub {
-      margin-top: 6px;
-      font-size: 32px;
+      margin-top: 4px;
+      font-size: 30px;
       line-height: 1.45;
-      color: #4f6b6a;
+      color: #284441;
     }
     .next-row {
       display: -webkit-flex;
       display: flex;
-      margin-top: 22px;
-      padding-top: 24px;
+      margin-top: 16px;
+      padding-top: 18px;
       border-top: 3px solid #e5efe2;
     }
     .next-when {
-      width: 252px;
+      width: 232px;
       -webkit-flex: none;
       flex: none;
     }
     .next-label {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 500;
       line-height: 1.3;
-      color: #4f6b6a;
+      color: #284441;
     }
     .next-time {
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 600;
       line-height: 1.35;
     }
@@ -177,9 +178,9 @@
       -webkit-flex: 1;
       flex: 1;
       min-width: 0;
-      max-height: 98px;
+      max-height: 92px;
       overflow: hidden;
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 500;
       line-height: 1.44;
       word-wrap: break-word;
@@ -189,9 +190,9 @@
       position: absolute;
       left: 72px;
       right: 96px;
-      bottom: 56px;
+      bottom: 44px;
       margin: 0;
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 500;
       line-height: 1.5;
       text-indent: -0.42em;
@@ -199,28 +200,28 @@
 
     /* BUSY */
     .busy-label {
-      font-size: 38px;
+      font-size: 34px;
       font-weight: 500;
       line-height: 1.3;
-      color: #c8e0d3;
+      color: #d6efe3;
     }
     .dot {
       display: inline-block;
-      width: 22px;
-      height: 22px;
-      margin: 0 18px 4px 0;
+      width: 20px;
+      height: 20px;
+      margin: 0 16px 4px 0;
       vertical-align: middle;
       border-radius: 50%;
-      background: #e2be76;
+      background: #f0c66a;
       -webkit-animation: pulse 2.4s ease-in-out infinite;
       animation: pulse 2.4s ease-in-out infinite;
     }
     @-webkit-keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
     .busy-title {
-      margin: 26px 0 0;
+      margin: 12px 0 0;
       overflow: hidden;
-      font-size: 100px;
+      font-size: 68px;
       font-weight: 600;
       line-height: 1.3;
       word-wrap: break-word;
@@ -230,60 +231,52 @@
       position: absolute;
       left: 72px;
       right: 72px;
-      bottom: 60px;
+      bottom: 48px;
     }
     .busy-when {
-      display: -webkit-flex;
-      display: flex;
-      -webkit-justify-content: space-between;
-      justify-content: space-between;
-      -webkit-align-items: baseline;
-      align-items: baseline;
-      font-size: 48px;
+      font-size: 44px;
+      font-weight: 600;
       line-height: 1.25;
     }
-    .busy-time { font-weight: 500; color: #c8e0d3; }
-    .busy-left { font-weight: 600; }
     .bar {
-      height: 18px;
-      margin: 22px 0 28px;
+      height: 16px;
+      margin: 16px 0 20px;
       overflow: hidden;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, .16);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .2);
     }
     .bar i {
       display: block;
       height: 100%;
-      border-radius: 9px;
-      background: #e2be76;
+      border-radius: 8px;
+      background: #f0c66a;
     }
     .busy-meta {
-      font-size: 32px;
+      font-size: 30px;
       line-height: 1.4;
-      color: #c8e0d3;
+      color: #d6efe3;
     }
     .busy-meta b, .item-meta b { font-weight: 600; }
     .busy-meta b { color: #fff; }
     .busy-meta span, .item-meta span { margin-right: 44px; }
 
     /* loading / error */
-    .idle { padding-top: 40px; }
+    .idle { padding-top: 24px; }
     .idle-title {
-      font-size: 72px;
+      font-size: 64px;
       font-weight: 600;
       line-height: 1.3;
     }
     .idle-sub {
       max-width: 900px;
-      margin-top: 24px;
-      font-size: 36px;
+      margin-top: 20px;
+      font-size: 34px;
       line-height: 1.5;
-      color: #3a5356;
     }
 
     /* 4. upcoming timeline */
     .agenda {
-      height: 588px;
+      height: 832px;
       padding: 32px 72px 0;
       box-sizing: border-box;
       overflow: hidden;
@@ -312,7 +305,7 @@
       font-size: 26px;
       font-weight: 400;
       line-height: 1.3;
-      color: #4f6b6a;
+      color: #284441;
     }
     .item-rail {
       position: relative;
@@ -327,7 +320,7 @@
       top: 0;
       bottom: 0;
       width: 4px;
-      background: #c8e0d3;
+      background: #88b89d;
     }
     .item:first-child .item-rail:before { top: 22px; }
     .item:last-child .item-rail:before { bottom: auto; height: 22px; }
@@ -339,11 +332,11 @@
       top: 12px;
       width: 18px;
       height: 18px;
-      border: 5px solid #e5efe2;
+      border: 5px solid #bfdcc9;
       border-radius: 50%;
-      background: #669283;
+      background: #147a4c;
     }
-    .is-now .item-rail:after { background: #e2be76; }
+    .is-now .item-rail:after { background: #e0a93b; }
     .item-body {
       -webkit-flex: 1;
       flex: 1;
@@ -364,30 +357,34 @@
       padding: 0 16px;
       vertical-align: 4px;
       border-radius: 20px;
-      background: #3a5356;
+      background: #0c4146;
       color: #fff;
       font-size: 22px;
       font-weight: 500;
       line-height: 38px;
     }
     .item-meta {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
       font-size: 26px;
       line-height: 1.4;
-      color: #4f6b6a;
+      color: #284441;
     }
+    .item-meta b { color: #13302f; }
     .more {
       margin: 0 0 0 192px;
       font-size: 28px;
       font-weight: 500;
       line-height: 1.4;
-      color: #4f6b6a;
+      color: #284441;
     }
     .empty {
       padding-top: 150px;
       text-align: center;
       font-size: 40px;
       font-weight: 500;
-      color: #4f6b6a;
+      color: #284441;
     }
 
     /* 5. footer */
@@ -395,7 +392,7 @@
       position: relative;
       height: 180px;
       margin: 0 72px;
-      border-top: 3px solid #c8e0d3;
+      border-top: 3px solid #88b89d;
       box-sizing: border-box;
       display: -webkit-flex;
       display: flex;
@@ -426,7 +423,7 @@
       margin-top: 4px;
       font-size: 28px;
       line-height: 1.45;
-      color: #4f6b6a;
+      color: #284441;
     }
     .stale {
       position: absolute;
@@ -434,7 +431,7 @@
       bottom: 22px;
       font-size: 22px;
       line-height: 1.4;
-      color: #4f6b6a;
+      color: #284441;
     }
     .stale:before {
       content: "";
@@ -445,6 +442,60 @@
       vertical-align: middle;
       border-radius: 50%;
       background: #c98f7f;
+    }
+
+    /* Landscape 1920x1080: header row (logo | room · clock), then 50/50: hero + QR left half, timeline right half */
+    .is-land #stage {
+      width: 1920px;
+      height: 1080px;
+      margin: -540px 0 0 -960px;
+    }
+    .is-land .top { height: 150px; }
+    .is-land .logo { top: 33px; }
+    .is-land .clock { top: 18px; }
+    .is-land .room {
+      position: absolute;
+      left: 523px;
+      right: 480px;
+      top: 33px;
+      height: 84px;
+      padding: 0 0 0 44px;
+      border-left: 3px solid #88b89d;
+      font-size: 60px;
+      line-height: 84px;
+    }
+    .is-land .hero {
+      position: absolute;
+      left: 0;
+      top: 150px;
+      width: 960px;
+      height: 750px;
+    }
+    .is-land .agenda {
+      position: absolute;
+      left: 960px;
+      right: 0;
+      top: 150px;
+      bottom: 0;
+      height: auto;
+      padding: 40px 72px 0 64px;
+    }
+    .is-land .item-title { /* narrower column: allow two lines */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      max-height: 96px;
+      white-space: normal;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .is-land .foot {
+      position: absolute;
+      left: 72px;
+      top: 900px;
+      width: 816px;
+      margin: 0;
+      border-top: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -577,11 +628,6 @@
       var d = new Date(+p[0], +p[1] - 1, +p[2]);
       return TH_DAYS_SHORT[d.getDay()] + ". " + d.getDate() + " " + TH_MONTHS_SHORT[d.getMonth()];
     }
-    function duration(min) {
-      if (min < 60) return min + " นาที";
-      return Math.floor(min / 60) + " ชม." + (min % 60 ? " " + (min % 60) + " นาที" : "");
-    }
-
     function pickQuote(now) {
       var m = now.getMinutes();
       quote = (m % 15 === 0) ? FIXED_QUOTE : QUOTES[Math.floor(Math.random() * QUOTES.length)];
@@ -634,15 +680,14 @@
         '<div class="busy-label"><i class="dot"></i>กำลังประชุม</div>' +
         '<h2 id="busyTitle" class="busy-title">' + titleHTML(b) + "</h2>" +
         '<div id="busyFoot" class="busy-foot">' +
-          '<div class="busy-when"><span class="busy-time">' + hm(b.s) + " – " + hm(b.e) + "</span>" +
-          '<span class="busy-left">เหลืออีก ' + duration(b.e - nowMin) + "</span></div>" +
+          '<div class="busy-when">' + hm(b.s) + " – " + hm(b.e) + "</div>" +
           '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
           metaHTML(b, "busy-meta") +
         "</div>";
       // Shrink long titles until they clear the footer block; clip whole lines as a last resort.
-      var t = $("busyTitle"), limit = $("busyFoot").offsetTop - 40, size = 100;
+      var t = $("busyTitle"), limit = $("busyFoot").offsetTop - 32, size = 68;
       t.style.fontSize = size + "px";
-      while (size > 48 && t.offsetTop + t.offsetHeight > limit) {
+      while (size > 40 && t.offsetTop + t.offsetHeight > limit) {
         size -= 4;
         t.style.fontSize = size + "px";
       }
@@ -764,26 +809,34 @@
       render();
     }
 
-    // Fit the 1080x1920 stage to the screen. ?rotate=90|270 for landscape output on a portrait-mounted panel.
+    // Fit the stage to the screen: 1080x1920 portrait or 1920x1080 landscape, picked by the panel's
+    // aspect as the viewer sees it. ?rotate=90|270 when the panel is mounted turned against the video output.
     var ROTATE = (function () {
       var m = /[?&]rotate=(90|270)(&|$)/.exec(location.search);
       return m ? parseInt(m[1], 10) : 0;
     })();
-    function fitStage() {
+    var land = null;
+    function fitStage() { // returns true when the orientation changed
       var w = window.innerWidth || document.documentElement.clientWidth;
       var h = window.innerHeight || document.documentElement.clientHeight;
-      var s = ROTATE ? Math.min(w / 1920, h / 1080) : Math.min(w / 1080, h / 1920);
+      if (ROTATE) { var t = w; w = h; h = t; }
+      var isLand = w > h;
+      var s = isLand ? Math.min(w / 1920, h / 1080) : Math.min(w / 1080, h / 1920);
       var tf = (ROTATE ? "rotate(" + ROTATE + "deg) " : "") + "scale(" + s + ")";
       var st = $("stage").style;
       st.webkitTransform = tf;
       st.msTransform = tf;
       st.transform = tf;
+      if (isLand === land) return false;
+      land = isLand;
+      document.body.className = isLand ? "is-land" : "";
+      return true;
     }
 
     document.title = ROOM_NAME + " · ตารางจองห้องประชุม";
     $("room").innerHTML = esc(ROOM_NAME);
     fitStage();
-    window.onresize = fitStage;
+    window.onresize = function () { if (fitStage()) render(); };
     tick();
     setInterval(tick, 1000);
     // Re-fit title/list once web fonts arrive (metrics change).
