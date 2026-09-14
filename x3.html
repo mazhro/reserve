@@ -776,6 +776,7 @@
     var inFlight = null;
     var inFlightAt = 0;
     var quote = "";
+    var lastRandomQuote = null; // last non-fixed quote shown, so we never repeat back-to-back
     var lastMinute = "";
     // Hero view / quote / agenda are rebuilt only when their content changes, so running animations never restart.
     var heroKey = "", heroView = null, quoteEl = null, shownQuote = null, agendaSig = null;
@@ -807,7 +808,13 @@
     }
     function pickQuote(now) {
       var m = now.getMinutes();
-      quote = (m % 15 === 0) ? FIXED_QUOTE : QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      if (m % 15 === 0) { quote = FIXED_QUOTE; return; }
+      var pick = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      if (QUOTES.length > 1) { // re-roll so we never repeat the previous random quote
+        while (pick === lastRandomQuote) pick = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+      }
+      lastRandomQuote = pick;
+      quote = pick;
     }
 
     // Not-yet-ended bookings, sorted; b.now = in progress.
